@@ -1,11 +1,13 @@
+try:
+    import Adafruit_PCA9685
+except ModuleNotFoundError:
+    import adafruit_pca9685
 import board
 import busio
-import adafruit_pca9685
 
 
 def main():
-    while (True):
-        print("Test")
+    print("Hello World")
 
 
 if __name__ == '__main__':
