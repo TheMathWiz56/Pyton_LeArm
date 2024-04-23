@@ -14,10 +14,11 @@ present Option at start of the program to run simulation or run actual arm (chan
 
 Main.py - has arm.py for setting desired position and returning forward kinematics
     Also read's joysticks and modifies desired position accordingly
-arm.py - Puts all the link.py's together. Has inverse and forwards kinematic functions and periodically sets servo 
+Arm_Kinematics.py - 
+class Arm - Puts all the link objects together. Has inverse and forwards kinematic functions and periodically sets servo 
     angles on another thread
-link.py - creates transform matrix for that link given link parameters and contains the relevant servo instance
-constants.py - stores all constant values like indexes and offsets
+class Link- creates transform matrix for that link given link parameters and contains the relevant servo instance
+Constants.py - stores all constant values like indexes and offsets
 
 To Do List:
 First find offset for each servo and valid range
