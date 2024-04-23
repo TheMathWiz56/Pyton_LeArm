@@ -5,7 +5,7 @@ import adafruit_pca9685
 
 def main():
     while (True):
-        print("Hello")
+        print("Test")
 
 
 if __name__ == '__main__':
