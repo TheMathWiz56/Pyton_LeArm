@@ -9,20 +9,31 @@ class LinkType(Enum):
     PRISMATIC_LINK = 1
 
 
+class GripperState(Enum):
+    OPEN = 0
+    MIDDLE = 90
+    CLOSED = 110
+
+
 class LeArmConstants:
     LINK2_LENGTH = 104
     LINK3_LENGTH = 89
 
     LINK_PARAMETERS = np.array([
         [0, 0, 0, 0, LinkType.REVOLUTE_LINK],
-        [m.pi / 2, 10, 0, m.pi/2, LinkType.REVOLUTE_LINK],
+        [m.pi / 2, 10, 0, m.pi / 2, LinkType.REVOLUTE_LINK],
         [0, LINK2_LENGTH, 0, 0, LinkType.REVOLUTE_LINK],
         [0, LINK3_LENGTH, 0, 0, LinkType.REVOLUTE_LINK],
         [-m.pi / 2, 0, 0, 0, LinkType.REVOLUTE_LINK]
     ])
 
-    SHOULDER_OFFSET = 0
-    ELBOW1_OFFSET = 0
-    ELBOW2_OFFSET = 0
-    ELBOW3_OFFSET = 0
-    WRIST_OFFSET = 0
+    # Servo Pins
+    PINS = [0, 1, 5, 2, 4, 3]
+    # Shoulder, Elbow1, Elbow2, Elbow3, Wrist, Gripper
+
+    # Vertical positions
+    SHOULDER_OFFSET = 124
+    ELBOW1_OFFSET = 110
+    ELBOW2_OFFSET = 110
+    ELBOW3_OFFSET = 125
+    WRIST_OFFSET = 110
