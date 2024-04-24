@@ -1,9 +1,10 @@
-try:
+"""try:
     import Adafruit_PCA9685
 except ModuleNotFoundError:
     import adafruit_pca9685
 import board
-import busio
+import busio"""
+import Arm_Kinematics
 
 """
 ------------------------
@@ -15,10 +16,10 @@ present Option at start of the program to run simulation or run actual arm (chan
 Main.py - has arm.py for setting desired position and returning forward kinematics
     Also read's joysticks and modifies desired position accordingly
 Arm_Kinematics.py - 
-class Arm - Puts all the link objects together. Has inverse and forwards kinematic functions and periodically sets servo 
-    angles on another thread
-class Link- creates transform matrix for that link given link parameters and contains the relevant servo instance
-Constants.py - stores all constant values like indexes and offsets
+class Arm - puts together all of the link instances and in charge of kinematic operations
+class link - responsible for keeping track of link parameters and assigning outputs to servos
+    function homogeneous transorm, returns homogeneous transform
+class linkParameters - helpful for storing and updating link parameters for a given link
 
 To Do List:
 First find offset for each servo and valid range
@@ -31,7 +32,9 @@ allow autonomous operations to be stored and run from the commmand line
 
 
 def main():
-    print("Hello World")
+    pass
+    test = Arm_Kinematics.Arm()
+    print(test.__str__())
 
 
 if __name__ == '__main__':
