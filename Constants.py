@@ -10,11 +10,14 @@ class LinkType(Enum):
 
 
 class LeArmConstants:
+    LINK2_LENGTH = 104
+    LINK3_LENGTH = 89
+
     LINK_PARAMETERS = np.array([
         [0, 0, 0, 0, LinkType.REVOLUTE_LINK],
         [m.pi / 2, 10, 0, m.pi/2, LinkType.REVOLUTE_LINK],
-        [0, 104, 0, 0, LinkType.REVOLUTE_LINK],
-        [0, 89, 0, 0, LinkType.REVOLUTE_LINK],
+        [0, LINK2_LENGTH, 0, 0, LinkType.REVOLUTE_LINK],
+        [0, LINK3_LENGTH, 0, 0, LinkType.REVOLUTE_LINK],
         [-m.pi / 2, 0, 0, 0, LinkType.REVOLUTE_LINK]
     ])
 

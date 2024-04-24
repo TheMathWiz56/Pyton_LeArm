@@ -30,6 +30,12 @@ create and apply inverse kinematics
 allow autonomous operations to be stored and run from the commmand line 
 
 Implement multi-threading at some point to split the kinematic calculations and servo control
+
+Inverse Kinematics implementation process:
+start with 3 axis planar inverse kinematics
+    with servo movements
+    on a controller button press
+add base and wrist axes to inverse kinematics
 """
 
 
