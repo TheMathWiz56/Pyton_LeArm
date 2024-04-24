@@ -40,8 +40,9 @@ def main():
 
     kit = ServoKit(channels=16)
 
-    for i in range(6):
-        kit.servo[0].angle = 90
+    while True:
+        for i in range(6):
+            kit.servo[0].angle = 90
 
 
 if __name__ == '__main__':
