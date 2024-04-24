@@ -5,6 +5,7 @@ from Constants import LinkType
 
 np.set_printoptions(precision=5, suppress=True, )
 
+
 # Arm class - generates base to end-effector transform, handles kinematic operations
 class Arm:
     def __init__(self):
@@ -20,7 +21,8 @@ class Arm:
     def update_base2end_effector_transformation(self):
         self.base2end_effector_transformation = np.identity(4)
         for link in reversed(self.link_list):
-            self.base2end_effector_transformation = np.matmul(link.get_homogeneous_transform(), self.base2end_effector_transformation)
+            self.base2end_effector_transformation = np.matmul(link.get_homogeneous_transform(),
+                                                              self.base2end_effector_transformation)
 
     def __str__(self):
         return self.base2end_effector_transformation
