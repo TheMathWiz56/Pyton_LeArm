@@ -9,23 +9,23 @@ np.set_printoptions(precision=5, suppress=True, )
 # Arm class - generates base to end-effector transform, handles kinematic operations
 class Arm:
     def __init__(self):
-        self.base2end_effector_transformation = None
+        self.base_to_wrist_frame_transformation = None
         self.link_list = []
 
         for link_parameters in LeArm.LINK_PARAMETERS:
             alpha, a, d, theta, link_type = link_parameters
             self.link_list.append(Link(a, alpha, d, theta, link_type))
 
-        self.update_base2end_effector_transformation()
+        self.update_base_to_wrist_frame_transformation()
 
-    def update_base2end_effector_transformation(self):
-        self.base2end_effector_transformation = np.identity(4)
+    def update_base_to_wrist_frame_transformation(self):
+        self.base_to_wrist_frame_transformation = np.identity(4)
         for link in reversed(self.link_list):
-            self.base2end_effector_transformation = np.matmul(link.get_homogeneous_transform(),
-                                                              self.base2end_effector_transformation)
+            self.base_to_wrist_frame_transformation = np.matmul(link.get_homogeneous_transform(),
+                                                                self.base_to_wrist_frame_transformation)
 
     def __str__(self):
-        return self.base2end_effector_transformation
+        return self.base_to_wrist_frame_transformation
 
 
 # Link class - generates homogeneous transforms and updates servo values
