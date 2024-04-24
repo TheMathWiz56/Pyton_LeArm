@@ -1,5 +1,6 @@
 from adafruit_servokit import ServoKit
 import Arm_Kinematics
+import keyboard
 
 """
 ------------------------
@@ -40,9 +41,19 @@ def main():
 
     kit = ServoKit(channels=16)
 
+    servo_id = 0
+    angle = 90
+
     while True:
-        for i in range(6):
-            kit.servo[i].angle = 90
+        try:
+            kit.servo[servo_id].angle = angle
+        except KeyboardInterrupt:
+            print("Servos Paused")
+            try:
+                servo_id = int(input("Enter a servo to move 0-5: "))
+                angle = int(input("Enter an angle 0-180: "))
+            except ValueError:
+                print(f"Invalid input, using {servo_id} at angle {angle}")
 
 
 if __name__ == '__main__':
