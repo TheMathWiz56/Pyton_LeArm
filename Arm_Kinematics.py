@@ -3,6 +3,7 @@ import math as m
 from Constants import LeArmConstants as LeArm
 from Constants import LinkType
 
+np.set_printoptions(precision=5, suppress=True, )
 
 # Arm class - generates base to end-effector transform, handles kinematic operations
 class Arm:
@@ -18,11 +19,7 @@ class Arm:
 
     def update_base2end_effector_transformation(self):
         self.base2end_effector_transformation = np.identity(4)
-        print(self.base2end_effector_transformation)
-        print(self.base2end_effector_transformation.ndim)
         for link in reversed(self.link_list):
-            print(link.__str__())
-            print(link.get_homogeneous_transform().ndim)
             self.base2end_effector_transformation = np.matmul(link.get_homogeneous_transform(), self.base2end_effector_transformation)
 
     def __str__(self):
