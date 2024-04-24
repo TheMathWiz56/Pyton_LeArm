@@ -42,7 +42,7 @@ def main():
 
     while True:
         for i in range(6):
-            kit.servo[0].angle = 90
+            kit.servo[i].angle = 90
 
 
 if __name__ == '__main__':
