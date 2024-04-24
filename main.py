@@ -1,9 +1,4 @@
-"""try:
-    import Adafruit_PCA9685
-except ModuleNotFoundError:
-    import adafruit_pca9685
-import board
-import busio"""
+from adafruit_servokit import ServoKit
 import Arm_Kinematics
 
 """
@@ -40,9 +35,13 @@ add base and wrist axes to inverse kinematics
 
 
 def main():
-    pass
     test = Arm_Kinematics.Arm()
     print(test.__str__())
+
+    kit = ServoKit(channels=16)
+
+    for i in range(6):
+        kit.servo[0].angle = 90
 
 
 if __name__ == '__main__':
