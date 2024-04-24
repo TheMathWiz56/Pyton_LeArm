@@ -28,6 +28,8 @@ Joysticks to update inverse kinematics (One joystick changes XY component, DPad 
 create and apply inverse kinematics
     Create smooth pathing function
 allow autonomous operations to be stored and run from the commmand line 
+
+Implement multi-threading at some point to split the kinematic calculations and servo control
 """
 
 
