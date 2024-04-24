@@ -3,6 +3,8 @@
 
 # All .idea
 .idea/
+venv/
+
 
 
 # Gradle and Maven with auto-import
