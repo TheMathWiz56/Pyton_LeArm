@@ -56,7 +56,7 @@ def main():
                     command_controller.go_to_stow()
                 else:
                     print("Invalid Input")
-            except TypeError:
+            except ValueError:
                 print("Invalid Input")
         except KeyboardInterrupt:
             print("Exiting")
