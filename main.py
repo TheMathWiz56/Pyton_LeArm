@@ -37,9 +37,9 @@ def main():
     command_controller = Commands.Command(arm)
 
     is_running = True
+    os.system('cls' if os.name == 'nt' else 'clear')
     while is_running:
         try:
-            os.system('cls' if os.name == 'nt' else 'clear')
             print("Type the number of the desired command:")
             print("1) Servo Test")
             print("2) Go To Vertical 0")
