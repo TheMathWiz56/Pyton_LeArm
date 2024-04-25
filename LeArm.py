@@ -38,7 +38,7 @@ class Arm:
 # Link class - generates homogeneous transforms
 class Link:
     def __init__(self, link_parameters):
-        # a alpha d theta link_type
+        # a, alpha, d, theta, link_type
         self.link_parameters = LinkParameters(link_parameters[0], link_parameters[1], link_parameters[2],
                                               link_parameters[3])
         self.link_type = link_parameters[4]

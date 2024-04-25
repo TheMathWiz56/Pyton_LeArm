@@ -4,12 +4,12 @@ from enum import Enum
 
 """
 orientations (found in vertical position)
-Base - CW from top down
-Elbow1
-Elbow2
-Elbow3
-Wrist
-Gripper
+Base = negative is CW from top down
+Elbow1 = negative is in -x direction
+Elbow2 = negative is in +x direction
+Elbow3 = negative is in +x direction
+Wrist = negative is CW from top down
+Gripper = positive is closing, negative is opening
 """
 
 
@@ -50,9 +50,11 @@ class LeArmConstants:
         [-m.pi / 2, 0, 0, 0, LinkType.REVOLUTE_LINK]
     ])
 
-    # Vertical positions
-    SHOULDER_OFFSET = 124
-    ELBOW1_OFFSET = 110
-    ELBOW2_OFFSET = 110
-    ELBOW3_OFFSET = 125
-    WRIST_OFFSET = 110
+    # Vertical positionS
+    SHOULDER_VERTICAL = 124
+    ELBOW1_VERTICAL = 115
+    ELBOW2_VERTICAL = 110
+    ELBOW3_VERTICAL = 125
+    WRIST_VERTICAL = 110
+    VERTICAL_POSITIONS_LIST = [SHOULDER_VERTICAL, ELBOW1_VERTICAL, ELBOW2_VERTICAL, ELBOW3_VERTICAL, WRIST_VERTICAL,
+                               GripperState.MIDDLE.value]

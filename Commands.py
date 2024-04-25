@@ -1,4 +1,5 @@
 import LeArm
+from Constants import LeArmConstants
 
 
 class Command:
@@ -6,7 +7,7 @@ class Command:
         self.le_arm = le_arm
         self.kit = le_arm.get_kit()
 
-    def test_servos(self):
+    def servo_test(self):
         servo_id = 0
         angle = 90
 
@@ -26,4 +27,7 @@ class Command:
                     is_running = False
 
     def go_to_vertical_0(self):
+        self.le_arm.update_servos_setpoints([LeArmConstants.VERTICAL_POSITIONS_LIST])
+
+    def go_to_stow(self):
         pass

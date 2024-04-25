@@ -33,8 +33,32 @@ Could make a FSM for handling command flow
 
 def main():
     arm = LeArm.Arm()
-    controller = Commands.Command(arm)
-    controller.test_servos()
+    command_controller = Commands.Command(arm)
+
+    is_running = True
+    while is_running:
+        try:
+            print("Type the number of the desired command:")
+            print("1) Servo Test")
+            print("2) Go To Vertical 0")
+            print("3) Go To Stow")
+            user_input = input("Select Command: ")
+
+            try:
+                user_input_int = int(user_input)
+                if user_input_int is 1:
+                    command_controller.servo_test()
+                elif user_input_int is 2:
+                    command_controller.go_to_vertical_0()
+                elif user_input_int is 3:
+                    command_controller.go_to_stow()
+                else:
+                    print("Invalid Input")
+            except TypeError:
+                print("Invalid Input")
+        except KeyboardInterrupt:
+            print("Exiting")
+            is_running = False
 
 
 if __name__ == '__main__':
