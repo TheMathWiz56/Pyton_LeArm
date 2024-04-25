@@ -1,4 +1,4 @@
-
+import Commands
 import LeArm
 
 """
@@ -32,8 +32,9 @@ Could make a FSM for handling command flow
 
 
 def main():
-    test = LeArm.Arm()
-    print(test.__str__())
+    arm = LeArm.Arm()
+    controller = Commands.Command(arm)
+    controller.test_servos()
 
 
 if __name__ == '__main__':

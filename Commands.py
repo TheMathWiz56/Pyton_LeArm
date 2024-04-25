@@ -10,7 +10,9 @@ class Command:
         servo_id = 0
         angle = 90
 
-        while True:
+        is_running = True
+
+        while is_running:
             try:
                 self.kit.servo[servo_id].angle = angle
             except KeyboardInterrupt:
@@ -20,6 +22,8 @@ class Command:
                     angle = int(input("Enter an angle 0-180: "))
                 except ValueError:
                     print(f"Invalid input, using {servo_id} at angle {angle}")
+                except KeyboardInterrupt:
+                    is_running = False
 
     def go_to_vertical_0(self):
         pass
