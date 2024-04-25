@@ -30,4 +30,4 @@ class Command:
         self.le_arm.update_servos_setpoints(LeArmConstants.VERTICAL_POSITIONS_LIST)
 
     def go_to_stow(self):
-        self.le_arm.update_servos_setpoints(LeArmConstants.VERTICAL_POSITIONS_LIST)
+        self.le_arm.update_servos_setpoints(LeArmConstants.STOW_POSITIONS_LIST)
