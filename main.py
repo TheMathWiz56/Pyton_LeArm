@@ -1,6 +1,5 @@
-from adafruit_servokit import ServoKit
-import Arm_Kinematics
-import keyboard
+
+import LeArm
 
 """
 ------------------------
@@ -11,7 +10,7 @@ present Option at start of the program to run simulation or run actual arm (chan
 
 Main.py - has arm.py for setting desired position and returning forward kinematics
     Also read's joysticks and modifies desired position accordingly
-Arm_Kinematics.py - 
+LeArm.py - 
 class Arm - puts together all of the link instances and in charge of kinematic operations
 class link - responsible for keeping track of link parameters and assigning outputs to servos
     function homogeneous transorm, returns homogeneous transform
@@ -32,28 +31,14 @@ start with 3 axis planar inverse kinematics
     with servo movements
     on a controller button press
 add base and wrist axes to inverse kinematics
+
+Could make a FSM for handling command flow
 """
 
 
 def main():
-    test = Arm_Kinematics.Arm()
+    test = LeArm.Arm()
     print(test.__str__())
-
-    kit = ServoKit(channels=16)
-
-    servo_id = 0
-    angle = 90
-
-    while True:
-        try:
-            kit.servo[servo_id].angle = angle
-        except KeyboardInterrupt:
-            print("Servos Paused")
-            try:
-                servo_id = int(input("Enter a servo to move 0-5: "))
-                angle = int(input("Enter an angle 0-180: "))
-            except ValueError:
-                print(f"Invalid input, using {servo_id} at angle {angle}")
 
 
 if __name__ == '__main__':

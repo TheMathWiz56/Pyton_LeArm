@@ -9,6 +9,19 @@ class LinkType(Enum):
     PRISMATIC_LINK = 1
 
 
+class PINS(Enum):
+    SHOULDER = 0
+    ELBOW1 = 1
+    ELBOW2 = 5
+    ELBOW3 = 2
+    WRIST = 4
+    GRIPPER = 3
+
+
+def square(num):
+    return num * num
+
+
 class GripperState(Enum):
     OPEN = 0
     MIDDLE = 90
@@ -26,10 +39,6 @@ class LeArmConstants:
         [0, LINK3_LENGTH, 0, 0, LinkType.REVOLUTE_LINK],
         [-m.pi / 2, 0, 0, 0, LinkType.REVOLUTE_LINK]
     ])
-
-    # Servo Pins
-    PINS = [0, 1, 5, 2, 4, 3]
-    # Shoulder, Elbow1, Elbow2, Elbow3, Wrist, Gripper
 
     # Vertical positions
     SHOULDER_OFFSET = 124
