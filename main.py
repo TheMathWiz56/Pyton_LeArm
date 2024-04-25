@@ -12,19 +12,14 @@ Main.py - has arm.py for setting desired position and returning forward kinemati
     Also read's joysticks and modifies desired position accordingly
 LeArm.py - 
 class Arm - puts together all of the link instances and in charge of kinematic operations
-class link - responsible for keeping track of link parameters and assigning outputs to servos
+class link - responsible for keeping track of link parameters
     function homogeneous transorm, returns homogeneous transform
 class linkParameters - helpful for storing and updating link parameters for a given link
 
 To Do List:
-First find offset for each servo and valid range
-Joysticks to update inverse kinematics (One joystick changes XY component, DPad does Z and other joystick does wrist, 
-    bumper does claw)
-create and apply inverse kinematics
-    Create smooth pathing function
-allow autonomous operations to be stored and run from the commmand line 
-
-Implement multi-threading at some point to split the kinematic calculations and servo control
+Make LinkList and ServoSetpointList Classes for arm's use
+Figure out joint angles from given servo angles and update forward kinematics
+Basic command for going to a few known positions, vertical 0, horizontal 0, Stow position
 
 Inverse Kinematics implementation process:
 start with 3 axis planar inverse kinematics

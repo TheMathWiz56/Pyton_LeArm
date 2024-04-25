@@ -5,9 +5,10 @@ import numpy as np
 import LeArm
 
 
-def get_forward_kinematics(link_list: list[LeArm.Link]):
+def get_forward_kinematics(link_list: LeArm.LinkList):
     base_to_wrist_frame_transformation = np.identity(4)
-    for link in reversed(link_list):
+
+    for link in link_list.get_list_reversed():
         base_to_wrist_frame_transformation = np.matmul(link.get_homogeneous_transform(),
                                                        base_to_wrist_frame_transformation)
     return base_to_wrist_frame_transformation
