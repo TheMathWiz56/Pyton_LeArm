@@ -1,5 +1,6 @@
 import LeArm
 import Commands
+import os
 
 """
 ------------------------
@@ -38,6 +39,7 @@ def main():
     is_running = True
     while is_running:
         try:
+            os.system('cls' if os.name == 'nt' else 'clear')
             print("Type the number of the desired command:")
             print("1) Servo Test")
             print("2) Go To Vertical 0")
@@ -46,11 +48,11 @@ def main():
 
             try:
                 user_input_int = int(user_input)
-                if user_input_int is 1:
+                if user_input_int == 1:
                     command_controller.servo_test()
-                elif user_input_int is 2:
+                elif user_input_int == 2:
                     command_controller.go_to_vertical_0()
-                elif user_input_int is 3:
+                elif user_input_int == 3:
                     command_controller.go_to_stow()
                 else:
                     print("Invalid Input")
