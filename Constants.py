@@ -50,11 +50,20 @@ class LeArmConstants:
         [-m.pi / 2, 0, 0, 0, LinkType.REVOLUTE_LINK]
     ])
 
-    # Vertical positionS
+    # Vertical positions
     SHOULDER_VERTICAL = 124
     ELBOW1_VERTICAL = 115
-    ELBOW2_VERTICAL = 110
+    ELBOW2_VERTICAL = 105
     ELBOW3_VERTICAL = 125
     WRIST_VERTICAL = 110
     VERTICAL_POSITIONS_LIST = [SHOULDER_VERTICAL, ELBOW1_VERTICAL, ELBOW2_VERTICAL, ELBOW3_VERTICAL, WRIST_VERTICAL,
                                GripperState.MIDDLE.value]
+
+    # Stow positions
+    SHOULDER_STOW = 30
+    ELBOW1_STOW = 30
+    ELBOW2_STOW = 20
+    ELBOW3_STOW = 30
+    WRIST_STOW = 110
+    STOW_POSITIONS_LIST = [SHOULDER_STOW, ELBOW1_STOW, ELBOW2_STOW, ELBOW3_STOW, WRIST_STOW,
+                           GripperState.OPEN.value]
