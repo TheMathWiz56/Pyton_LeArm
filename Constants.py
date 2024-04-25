@@ -2,6 +2,16 @@ import numpy as np
 import math as m
 from enum import Enum
 
+"""
+orientations (found in vertical position)
+Base - CW from top down
+Elbow1
+Elbow2
+Elbow3
+Wrist
+Gripper
+"""
+
 
 # Enumerator for keeping track of Link Types
 class LinkType(Enum):
@@ -10,12 +20,12 @@ class LinkType(Enum):
 
 
 class PINS(Enum):
-    SHOULDER = 0
-    ELBOW1 = 1
-    ELBOW2 = 5
-    ELBOW3 = 2
-    WRIST = 4
-    GRIPPER = 3
+    SHOULDER = 0  # white
+    ELBOW1 = 1  # green
+    ELBOW2 = 2  # yellow
+    ELBOW3 = 3  # orange
+    WRIST = 4  # purple
+    GRIPPER = 5  # grey
 
 
 def square(num):
