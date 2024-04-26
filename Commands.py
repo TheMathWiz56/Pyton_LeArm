@@ -35,4 +35,4 @@ class Command:
         self.le_arm.update_servos_setpoints_raw(LeArmConstants.STOW_POSITIONS_LIST)
 
     def initialize_arm(self):
-        self.le_arm.go_to(LeArmConstants.GripperState.MIDDLE.value, x=0, z=289.818, pitch=m.pi / 2)
+        self.le_arm.go_to(LeArmConstants.GripperState.MIDDLE.value, x=0, z=292.818, pitch=m.pi / 2)
