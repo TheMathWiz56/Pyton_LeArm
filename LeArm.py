@@ -26,8 +26,12 @@ class Arm:
     def get_kit(self):
         return self.kit
 
-    # "raw" suggests that the user should be careful when utilizing this method as it bypasses the inverse kinematics
     def update_servos_setpoints_raw(self, outputs: list):
+        """
+        "raw" suggests that the user should be careful when utilizing this method as it bypasses the inverse kinematics
+        :param outputs:
+        :return:
+        """
         i = 0
         for output in outputs:
             if output is not None:
@@ -39,10 +43,25 @@ class Arm:
             i += 1
 
     def set_setpoint_to_servo_raw(self, value, pin: int):
+        """
+        "raw" suggests that the user should be careful when utilizing this method as it bypasses the inverse kinematics
+        :param value:
+        :param pin:
+        :return:
+        """
         self.kit.servo[pin].angle = value
 
-    def go_to(self, x=None, y=None, z=None, pitch=None, roll=None):
-        (servo_outputs, theta_list) = self.kinematics.solve(x, y, z, pitch, roll)
+    def go_to(self, gripper_setpoint, x=None, y=None, z=None, pitch=None, roll=None):
+        """
+        :param gripper_setpoint:
+        :param x: mm
+        :param y: mm
+        :param z: mm
+        :param pitch: RADIANS
+        :param roll: RADIANS
+        :return:
+        """
+        (servo_outputs, theta_list) = self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint)
         self.update_servos_setpoints_raw(servo_outputs)
         self.link_list.update_joint_revolute_variables(theta_list)
         self.update_base_to_wrist_frame_transformation()
@@ -216,8 +235,12 @@ class ArmKinematics:
             return set2
         return set1
 
-    def solve(self, x, y, z, pitch, roll):
+    def solve(self, x, y, z, pitch, roll, gripper_setpoint):
         self.move_current_to_past_setpoint()
+        self.current_setpoint.theta6 = gripper_setpoint
+
+        # All values will either be updated or kept the same
+        # If they are kept the same, they may be the default 0 or the past value that wasn't updated
         new_point = False
         if x is not None:
             self.current_setpoint.x = x
@@ -236,7 +259,6 @@ class ArmKinematics:
             new_point = True
 
         if new_point:
-            self.current_setpoint.theta6 = LeArmConstants.GripperState.MIDDLE.value
             planar_3_axis_solution = self.solve_3_axis_planar()
             return (
                 [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) - planar_3_axis_solution[1],
@@ -247,10 +269,13 @@ class ArmKinematics:
 
     def solve_3_axis_planar(self):
         # First remove the gripper vector from the arm position vector
+        # It's important that theta6 is updated to its new desired value before it can be removed from the total vector
+        #   in order to ensure the proper amount has been removed
         print("Inputted Coordinates:" + self.current_setpoint.__str__())
         print("Theta6: " + str(self.current_setpoint.theta6))
         gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
                           LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
+        print("Gripper Vector Length:" + gripper_length)
 
         gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
@@ -259,27 +284,24 @@ class ArmKinematics:
 
         print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
 
-        x = self.current_setpoint.x
-        z = self.current_setpoint.z
-
         self.check_x_z_coordinate()
         print((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)))
-        theta3p = -(m.acos((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
+        theta_3 = -(m.acos((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)) /
                            (2 * LeArmConstants.LINK2_LENGTH * LeArmConstants.LINK3_LENGTH)))
-        theta3n = -theta3p
+        theta_3_N = -theta_3
 
-        beta = m.atan2(z, x)
+        beta = m.atan2(self.current_setpoint.z, self.current_setpoint.x)
         psi = m.acos((square(self.get_x_z_length()) + square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)) /
                      (2 * LeArmConstants.LINK2_LENGTH * self.get_x_z_length()))
 
-        theta2p = beta + psi
-        theta2n = beta - psi
+        theta_2 = beta + psi
+        theta_2_N = beta - psi
 
-        theta4p = self.current_setpoint.pitch - theta2p - theta3p
-        theta4n = self.current_setpoint.pitch - theta2n - theta3n
+        theta_4 = self.current_setpoint.pitch - theta_2 - theta_3
+        theta_4_N = self.current_setpoint.pitch - theta_2_N - theta_3_N
 
-        return self.compare([None, theta2p, theta3p, theta4p, LeArmConstants.GripperState.MIDDLE.value, None],
-                            [None, theta2n, theta3n, theta4n, LeArmConstants.GripperState.MIDDLE.value, None])
+        return self.compare([None, theta_2, theta_3, theta_4, None, self.current_setpoint.theta6],
+                            [None, theta_2_N, theta_3_N, theta_4_N, None, self.current_setpoint.theta6])

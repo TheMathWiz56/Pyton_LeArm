@@ -1,3 +1,5 @@
+import math as m
+
 import LeArm
 from Constants import LeArmConstants
 
@@ -33,4 +35,4 @@ class Command:
         self.le_arm.update_servos_setpoints_raw(LeArmConstants.STOW_POSITIONS_LIST)
 
     def initialize_arm(self):
-        self.le_arm.go_to(x=0, z=200, pitch=90)
+        self.le_arm.go_to(LeArmConstants.GripperState.MIDDLE.value, x=0, z=200, pitch=m.pi / 2)
