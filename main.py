@@ -42,12 +42,14 @@ def main():
     arm = LeArm.Arm()
     command_controller = Commands.Command(arm)
 
+    os.system('cls' if os.name == 'nt' else 'clear')
+
     command_controller.initialize_arm()
 
     is_running = True
     while is_running:
         try:
-            os.system('cls' if os.name == 'nt' else 'clear')
+            # os.system('cls' if os.name == 'nt' else 'clear')
             print("Type the number of the desired command:")
             print("1) Servo Test")
             print("2) Go To Vertical 0")
