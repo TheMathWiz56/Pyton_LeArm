@@ -10,7 +10,7 @@ def square(num):
     """
     Returns the square of the input
     :param num:
-    :return: 
+    :return:
     """
     return num * num
 
@@ -74,10 +74,10 @@ class LeArmConstants:
     """
 
     # Vertical positions
-    SHOULDER_VERTICAL = 124
-    ELBOW1_VERTICAL = 115
-    ELBOW2_VERTICAL = 105
-    ELBOW3_VERTICAL = 125
+    SHOULDER_VERTICAL = 90
+    ELBOW1_VERTICAL = 90
+    ELBOW2_VERTICAL = 90
+    ELBOW3_VERTICAL = 90
     WRIST_VERTICAL = 90
     VERTICAL_POSITIONS_LIST = [SHOULDER_VERTICAL, ELBOW1_VERTICAL, ELBOW2_VERTICAL, ELBOW3_VERTICAL, WRIST_VERTICAL,
                                GripperState.MIDDLE.value]
