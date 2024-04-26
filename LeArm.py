@@ -324,6 +324,9 @@ class ArmKinematics:
         theta_4 = self.current_setpoint.pitch - theta_2 - theta_3
         theta_4_N = self.current_setpoint.pitch - theta_2_N - theta_3_N
 
+        print(f"psi: {psi}\n"
+              f"beta: {beta}")
+
         print(f"theta2: {theta_2}\n "
               f"theta3: {theta_3}\n"
               f"theta4: {theta_4}\n"
