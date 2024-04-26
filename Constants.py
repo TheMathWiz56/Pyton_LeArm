@@ -40,7 +40,7 @@ class LeArmConstants:
     """
     orientations (found in vertical position)
     Base = negative is CW from top down
-    Elbow1 = negative is in -x direction
+    Elbow1 = negative is in -x direction 7 - 
     Elbow2 = negative is in +x direction
     Elbow3 = positive is in +x direction
     Wrist = negative is CW from top down
