@@ -324,5 +324,12 @@ class ArmKinematics:
         theta_4 = self.current_setpoint.pitch - theta_2 - theta_3
         theta_4_N = self.current_setpoint.pitch - theta_2_N - theta_3_N
 
+        print(f"theta2: {theta_2}\n "
+              f"theta3: {theta_3}\n"
+              f"theta4: {theta_4}\n"
+              f"theta2n: {theta_2_N}\n"
+              f"theta3n: {theta_3_N}\n"
+              f"theta4n: {theta_4_N}")
+
         return self.compare([None, theta_2, theta_3, theta_4, None, self.current_setpoint.theta6],
                             [None, theta_2_N, theta_3_N, theta_4_N, None, self.current_setpoint.theta6])
