@@ -136,18 +136,18 @@ def get_forward_kinematics(link_list: LinkList):
 
 class ArmSetpoint:
     def __init__(self):
-        self.x = None
-        self.y = None
-        self.z = None
-        self.pitch = None
-        self.roll = None
+        self.x = 0
+        self.y = 0
+        self.z = 0
+        self.pitch = 0
+        self.roll = 0
 
-        self.theta1 = None
-        self.theta2 = None
-        self.theta3 = None
-        self.theta4 = None
-        self.theta5 = None
-        self.theta6 = None
+        self.theta1 = LeArmConstants.SHOULDER_VERTICAL
+        self.theta2 = LeArmConstants.ELBOW1_VERTICAL
+        self.theta3 = LeArmConstants.ELBOW2_VERTICAL
+        self.theta4 = LeArmConstants.ELBOW3_VERTICAL
+        self.theta5 = LeArmConstants.WRIST_VERTICAL
+        self.theta6 = LeArmConstants.GripperState.MIDDLE.value
 
     def update_setpoints(self, setpoint_as_list):
         self.x = setpoint_as_list[0]
