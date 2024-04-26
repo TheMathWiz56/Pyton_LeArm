@@ -195,7 +195,7 @@ class ArmKinematics:
 
         if m.sqrt(square(x) + square(z)) > LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH:
             print("Desired (x,z) cannot be achieved \nScaled to max extension")
-            scaler = self.get_x_z_length() / (LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH)
+            scaler = (LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH) / self.get_x_z_length()
             self.current_setpoint.x = scaler * x
             self.current_setpoint.z = scaler * z
 
