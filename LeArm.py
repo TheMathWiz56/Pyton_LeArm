@@ -15,7 +15,7 @@ class Arm:
         self.current_setpoint = ArmSetpoint()
         self.kinematics = ArmKinematics(self.current_setpoint)
 
-        self.kit.servo[LeArmConstants.PINS.GRIPPER.value].set_pulse_width_range(500, 2500)
+        self.kit.servo[LeArmConstants.PINS.WRIST.value].set_pulse_width_range(500, 2500)
 
         self.update_base_to_wrist_frame_transformation()
 
