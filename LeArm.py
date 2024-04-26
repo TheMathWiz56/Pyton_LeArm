@@ -275,7 +275,7 @@ class ArmKinematics:
         print("Theta6: " + str(self.current_setpoint.theta6))
         gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
                           LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
-        print("Gripper Vector Length:" + gripper_length)
+        print("Gripper Vector Length:" + gripper_length.__str__())
 
         gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
