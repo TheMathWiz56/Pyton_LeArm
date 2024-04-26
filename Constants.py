@@ -2,16 +2,6 @@ import numpy as np
 import math as m
 from enum import Enum
 
-"""
-orientations (found in vertical position)
-Base = negative is CW from top down
-Elbow1 = negative is in -x direction
-Elbow2 = negative is in +x direction
-Elbow3 = negative is in +x direction
-Wrist = negative is CW from top down
-Gripper = positive is closing, negative is opening
-"""
-
 
 def square(num):
     return num * num
@@ -47,6 +37,16 @@ class LeArmConstants:
         [-m.pi / 2, 0, 0, 0, LinkType.REVOLUTE_LINK]
     ]
 
+    """
+    orientations (found in vertical position)
+    Base = negative is CW from top down
+    Elbow1 = negative is in -x direction
+    Elbow2 = negative is in +x direction
+    Elbow3 = positive is in +x direction
+    Wrist = negative is CW from top down
+    Gripper = positive is closing, negative is opening
+    """
+
     # Vertical positions
     SHOULDER_VERTICAL = 124
     ELBOW1_VERTICAL = 115
@@ -67,5 +67,3 @@ class LeArmConstants:
 
     WRIST_TO_GRIPPER_DISTANCE = 95 + 20.075 + 27.53
     GRIPPER_EVEN_BAR_LINK_LENGTH = 30
-
-

@@ -255,7 +255,7 @@ class ArmKinematics:
         :return:
         """
         self.move_current_to_past_setpoint()
-        self.current_setpoint.theta6 = gripper_setpoint
+        self.current_setpoint.theta6 = m.radians(gripper_setpoint)
 
         # All values will either be updated or kept the same
         # If they are kept the same, they may be the default 0 or the past value that wasn't updated
@@ -282,10 +282,10 @@ class ArmKinematics:
             return (
                 [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) -
                  m.degrees(planar_3_axis_solution[1]), LeArmConstants.ELBOW2_VERTICAL +
-                 m.degrees(planar_3_axis_solution[2]), (LeArmConstants.ELBOW3_VERTICAL - 90)
+                 m.degrees(planar_3_axis_solution[2]), LeArmConstants.ELBOW3_VERTICAL
                  + m.degrees(planar_3_axis_solution[3]), LeArmConstants.GripperState.MIDDLE.value],
-                [LeArmConstants.SHOULDER_VERTICAL, planar_3_axis_solution[1], planar_3_axis_solution[2],
-                 planar_3_axis_solution[3], LeArmConstants.WRIST_VERTICAL])
+                [m.radians(LeArmConstants.SHOULDER_VERTICAL), planar_3_axis_solution[1], planar_3_axis_solution[2],
+                 planar_3_axis_solution[3], m.radians(LeArmConstants.WRIST_VERTICAL)])
 
     def solve_3_axis_planar(self):
         # First remove the gripper vector from the arm position vector
