@@ -325,7 +325,11 @@ class ArmKinematics:
         theta_4_N = self.current_setpoint.pitch - theta_2_N - theta_3_N
 
         print(f"psi: {psi}\n"
-              f"beta: {beta}")
+              f"beta: {beta}\n"
+              f"length xz: {self.get_x_z_length()}\n"
+              f"square L2: {square(LeArmConstants.LINK2_LENGTH)}\n"
+              f"square L3: {square(LeArmConstants.LINK3_LENGTH)}\n"
+              f"Denominator: {2 * LeArmConstants.LINK2_LENGTH * self.get_x_z_length()}")
 
         print(f"theta2: {theta_2}\n "
               f"theta3: {theta_3}\n"
