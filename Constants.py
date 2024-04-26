@@ -38,8 +38,8 @@ def square(num):
 
 class GripperState(Enum):
     OPEN = 0
-    MIDDLE = 90
-    CLOSED = 110
+    MIDDLE = 45
+    CLOSED = 80
 
 
 class LeArmConstants:
