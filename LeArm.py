@@ -250,6 +250,8 @@ class ArmKinematics:
         z = self.current_setpoint.z
 
         self.check_x_z_coordinate()
+        print((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
+            LeArmConstants.LINK3_LENGTH)))
         theta3p = -(m.acos((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)) /
                            (2 * LeArmConstants.LINK2_LENGTH * LeArmConstants.LINK3_LENGTH)))
