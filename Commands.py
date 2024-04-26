@@ -31,3 +31,6 @@ class Command:
 
     def go_to_stow(self):
         self.le_arm.update_servos_setpoints_raw(LeArmConstants.STOW_POSITIONS_LIST)
+
+    def initialize_arm(self):
+        self.le_arm.update_servos_setpoints_raw(LeArmConstants.STOW_POSITIONS_LIST)

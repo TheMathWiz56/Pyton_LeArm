@@ -10,39 +10,32 @@ Elbow2 = negative is in +x direction
 Elbow3 = negative is in +x direction
 Wrist = negative is CW from top down
 Gripper = positive is closing, negative is opening
-
-17.25cm to gripper closed
-17cm to gripper middle
-14cm to gripper closed
 """
-
-
-# Enumerator for keeping track of Link Types
-class LinkType(Enum):
-    REVOLUTE_LINK = 0
-    PRISMATIC_LINK = 1
-
-
-class PINS(Enum):
-    SHOULDER = 0  # white
-    ELBOW1 = 1  # green
-    ELBOW2 = 2  # yellow
-    ELBOW3 = 3  # orange
-    WRIST = 4  # purple
-    GRIPPER = 5  # grey
 
 
 def square(num):
     return num * num
 
 
-class GripperState(Enum):
-    OPEN = 0
-    MIDDLE = 45
-    CLOSED = 80
-
-
 class LeArmConstants:
+    class GripperState(Enum):
+        OPEN = 0
+        MIDDLE = 45
+        CLOSED = 80
+
+    # Enumerator for keeping track of Link Types
+    class LinkType(Enum):
+        REVOLUTE_LINK = 0
+        PRISMATIC_LINK = 1
+
+    class PINS(Enum):
+        SHOULDER = 0  # white
+        ELBOW1 = 1  # green
+        ELBOW2 = 2  # yellow
+        ELBOW3 = 3  # orange
+        WRIST = 4  # purple
+        GRIPPER = 5  # grey
+
     LINK2_LENGTH = 104
     LINK3_LENGTH = 89
 
@@ -74,3 +67,5 @@ class LeArmConstants:
 
     WRIST_TO_GRIPPER_DISTANCE = 95 + 20.13 + 27.55
     GRIPPER_EVEN_BAR_LINK_LENGTH = 30
+
+
