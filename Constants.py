@@ -10,6 +10,10 @@ Elbow2 = negative is in +x direction
 Elbow3 = negative is in +x direction
 Wrist = negative is CW from top down
 Gripper = positive is closing, negative is opening
+
+17.25cm to gripper closed
+17cm to gripper middle
+14cm to gripper closed
 """
 
 

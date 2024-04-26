@@ -13,6 +13,8 @@ class Arm:
         self.link_list = LinkList()
         self.kit = ServoKit(channels=16)
 
+        self.kit.servo[PINS.GRIPPER.value].set_pulse_width_range(500,2500)
+
         self.update_base_to_wrist_frame_transformation()
 
     def update_base_to_wrist_frame_transformation(self):

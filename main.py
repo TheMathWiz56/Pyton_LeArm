@@ -24,8 +24,14 @@ Basic command for going to a few known positions, vertical 0, horizontal 0, Stow
 
 Inverse Kinematics implementation process:
 start with 3 axis planar inverse kinematics
+    
+    figure out transform for gripper states: open, closed, middle
+    on a keyboard input
+    Create way to input desired gripper xz position and 1D orientation
+    Calculate servo angles to achieve desired gripper xz position and 1D orientation
     with servo movements
-    on a controller button press
+    
+    
 add base and wrist axes to inverse kinematics
 
 Could make a FSM for handling command flow
