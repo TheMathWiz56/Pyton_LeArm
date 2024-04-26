@@ -240,15 +240,19 @@ class ArmKinematics:
             return (
                 [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) - planar_3_axis_solution[1],
                  LeArmConstants.ELBOW2_VERTICAL + planar_3_axis_solution[2], (LeArmConstants.ELBOW3_VERTICAL - 90)
-                 + planar_3_axis_solution[3], LeArmConstants.GripperState.OPEN.value],
+                 + planar_3_axis_solution[3], LeArmConstants.GripperState.MIDDLE.value],
                 [LeArmConstants.SHOULDER_VERTICAL, planar_3_axis_solution[1], planar_3_axis_solution[2],
                  planar_3_axis_solution[3]])
 
     def solve_3_axis_planar(self):
         # First remove the gripper vector from the arm position vector
         print("Inputted Coordinates:" + self.current_setpoint.__str__())
-        gripper_v_x = m.cos(self.current_setpoint.pitch) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH
-        gripper_v_z = m.sin(self.current_setpoint.pitch) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH
+        print("Theta6: " + self.current_setpoint.theta6)
+        gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
+                          LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
+
+        gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
+        gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
         self.current_setpoint.x = self.current_setpoint.x - gripper_v_x
         self.current_setpoint.z = self.current_setpoint.z - gripper_v_z
 
@@ -276,4 +280,5 @@ class ArmKinematics:
         theta4p = self.current_setpoint.pitch - theta2p - theta3p
         theta4n = self.current_setpoint.pitch - theta2n - theta3n
 
-        return self.compare([None, theta2p, theta3p, theta4p, None], [None, theta2n, theta3n, theta4n, None])
+        return self.compare([None, theta2p, theta3p, theta4p, LeArmConstants.GripperState.MIDDLE.value],
+                            [None, theta2n, theta3n, theta4n, LeArmConstants.GripperState.MIDDLE.value])
