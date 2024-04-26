@@ -17,6 +17,7 @@ class Arm:
 
         self.kit.servo[LeArmConstants.PINS.WRIST.value].set_pulse_width_range(500, 2550)
 
+        self.kit.servo[LeArmConstants.PINS.SHOULDER.value].set_pulse_width_range(500, 2500)
         self.kit.servo[LeArmConstants.PINS.ELBOW1.value].set_pulse_width_range(625, 2750)
         self.kit.servo[LeArmConstants.PINS.ELBOW2.value].set_pulse_width_range(500, 2500)
 
