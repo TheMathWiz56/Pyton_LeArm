@@ -278,7 +278,7 @@ class ArmKinematics:
         # It's important that theta6 is updated to its new desired value before it can be removed from the total vector
         #   in order to ensure the proper amount has been removed
         print("Inputted Coordinates:" + self.current_setpoint.__str__())
-        print("Theta6: " + str(self.current_setpoint.theta6))
+        print("Theta6: " + str(m.radians(self.current_setpoint.theta6)))
         gripper_length = (m.sin(m.radians(self.current_setpoint.theta6)) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
                           LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
         print("Gripper Vector Length:" + gripper_length.__str__())
