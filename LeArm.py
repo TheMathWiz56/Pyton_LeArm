@@ -173,6 +173,9 @@ class ArmSetpoint:
     def get_theta_list(self):
         return [self.theta1, self.theta2, self.theta3, self.theta4, self.theta5, self.theta6]
 
+    def __str__(self):
+        return self.get_setpoint_as_list().__str__()
+
 
 class ArmKinematics:
     def __init__(self, current_setpoint: ArmSetpoint):
@@ -243,10 +246,13 @@ class ArmKinematics:
 
     def solve_3_axis_planar(self):
         # First remove the gripper vector from the arm position vector
+        print("Inputted Coordinates:" + self.current_setpoint.__str__())
         gripper_v_x = m.cos(self.current_setpoint.pitch) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH
         gripper_v_z = m.sin(self.current_setpoint.pitch) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH
         self.current_setpoint.x = self.current_setpoint.x - gripper_v_x
         self.current_setpoint.z = self.current_setpoint.z - gripper_v_z
+
+        print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
 
         x = self.current_setpoint.x
         z = self.current_setpoint.z
