@@ -281,5 +281,5 @@ class ArmKinematics:
         theta4p = self.current_setpoint.pitch - theta2p - theta3p
         theta4n = self.current_setpoint.pitch - theta2n - theta3n
 
-        return self.compare([None, theta2p, theta3p, theta4p, LeArmConstants.GripperState.MIDDLE.value],
-                            [None, theta2n, theta3n, theta4n, LeArmConstants.GripperState.MIDDLE.value])
+        return self.compare([None, theta2p, theta3p, theta4p, LeArmConstants.GripperState.MIDDLE.value, None],
+                            [None, theta2n, theta3n, theta4n, LeArmConstants.GripperState.MIDDLE.value, None])
