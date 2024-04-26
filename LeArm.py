@@ -164,12 +164,12 @@ class ArmSetpoint:
         self.pitch = 0
         self.roll = 0
 
-        self.theta1 = LeArmConstants.SHOULDER_VERTICAL
-        self.theta2 = LeArmConstants.ELBOW1_VERTICAL
-        self.theta3 = LeArmConstants.ELBOW2_VERTICAL
-        self.theta4 = LeArmConstants.ELBOW3_VERTICAL
-        self.theta5 = LeArmConstants.WRIST_VERTICAL
-        self.theta6 = LeArmConstants.GripperState.MIDDLE.value
+        self.theta1 = m.radians(LeArmConstants.SHOULDER_VERTICAL)
+        self.theta2 = m.radians(LeArmConstants.ELBOW1_VERTICAL)
+        self.theta3 = m.radians(LeArmConstants.ELBOW2_VERTICAL)
+        self.theta4 = m.radians(LeArmConstants.ELBOW3_VERTICAL)
+        self.theta5 = m.radians(LeArmConstants.WRIST_VERTICAL)
+        self.theta6 = m.radians(LeArmConstants.GripperState.MIDDLE.value)
 
     def update_setpoints(self, setpoint_as_list):
         self.x = setpoint_as_list[0]
@@ -242,6 +242,18 @@ class ArmKinematics:
         return set1
 
     def solve(self, x, y, z, pitch, roll, gripper_setpoint):
+        """
+        Takes in the angles in radians and returns the angles in degrees for the servos and raw angles in radians for
+        storage
+
+        :param x:
+        :param y:
+        :param z:
+        :param pitch:
+        :param roll:
+        :param gripper_setpoint:
+        :return:
+        """
         self.move_current_to_past_setpoint()
         self.current_setpoint.theta6 = gripper_setpoint
 
@@ -267,9 +279,10 @@ class ArmKinematics:
         if new_point:
             planar_3_axis_solution = self.solve_3_axis_planar()
             return (
-                [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) - planar_3_axis_solution[1],
-                 LeArmConstants.ELBOW2_VERTICAL + planar_3_axis_solution[2], (LeArmConstants.ELBOW3_VERTICAL - 90)
-                 + planar_3_axis_solution[3], LeArmConstants.GripperState.MIDDLE.value],
+                [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) -
+                 m.degrees(planar_3_axis_solution[1]), LeArmConstants.ELBOW2_VERTICAL +
+                 m.degrees(planar_3_axis_solution[2]), (LeArmConstants.ELBOW3_VERTICAL - 90)
+                 + m.degrees(planar_3_axis_solution[3]), LeArmConstants.GripperState.MIDDLE.value],
                 [LeArmConstants.SHOULDER_VERTICAL, planar_3_axis_solution[1], planar_3_axis_solution[2],
                  planar_3_axis_solution[3], LeArmConstants.WRIST_VERTICAL])
 
