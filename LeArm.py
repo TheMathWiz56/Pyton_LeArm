@@ -243,7 +243,7 @@ class ArmKinematics:
                  LeArmConstants.ELBOW2_VERTICAL + planar_3_axis_solution[2], (LeArmConstants.ELBOW3_VERTICAL - 90)
                  + planar_3_axis_solution[3], LeArmConstants.GripperState.MIDDLE.value],
                 [LeArmConstants.SHOULDER_VERTICAL, planar_3_axis_solution[1], planar_3_axis_solution[2],
-                 planar_3_axis_solution[3]])
+                 planar_3_axis_solution[3]], LeArmConstants.WRIST_VERTICAL)
 
     def solve_3_axis_planar(self):
         # First remove the gripper vector from the arm position vector
