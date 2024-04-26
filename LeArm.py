@@ -248,7 +248,7 @@ class ArmKinematics:
     def solve_3_axis_planar(self):
         # First remove the gripper vector from the arm position vector
         print("Inputted Coordinates:" + self.current_setpoint.__str__())
-        print("Theta6: " + self.current_setpoint.theta6)
+        print("Theta6: " + str(self.current_setpoint.theta6))
         gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
                           LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
 
