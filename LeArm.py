@@ -276,7 +276,7 @@ class ArmKinematics:
         #   in order to ensure the proper amount has been removed
         print("Inputted Coordinates:" + self.current_setpoint.__str__())
         print("Theta6: " + str(self.current_setpoint.theta6))
-        gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
+        gripper_length = (m.sin(m.radians(self.current_setpoint.theta6)) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
                           LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
         print("Gripper Vector Length:" + gripper_length.__str__())
 
@@ -290,6 +290,7 @@ class ArmKinematics:
         self.check_x_z_coordinate()
         print((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)))
+
         theta_3 = -(m.acos((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)) /
                            (2 * LeArmConstants.LINK2_LENGTH * LeArmConstants.LINK3_LENGTH)))
