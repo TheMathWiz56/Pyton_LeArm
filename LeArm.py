@@ -278,6 +278,7 @@ class ArmKinematics:
 
         if new_point:
             planar_3_axis_solution = self.solve_3_axis_planar()
+            print(planar_3_axis_solution)
             return (
                 [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) -
                  m.degrees(planar_3_axis_solution[1]), LeArmConstants.ELBOW2_VERTICAL +
