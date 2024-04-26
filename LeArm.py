@@ -15,11 +15,8 @@ class Arm:
         self.current_setpoint = ArmSetpoint()
         self.kinematics = ArmKinematics(self.current_setpoint)
 
-        self.kit.servo[LeArmConstants.PINS.SHOULDER.value].set_pulse_width_range(450, 2700)
-        self.kit.servo[LeArmConstants.PINS.ELBOW1.value].set_pulse_width_range(625, 2750)
-        self.kit.servo[LeArmConstants.PINS.ELBOW2.value].set_pulse_width_range(550, 2675)
-        self.kit.servo[LeArmConstants.PINS.ELBOW3.value].set_pulse_width_range(750, 2800)
-        self.kit.servo[LeArmConstants.PINS.WRIST.value].set_pulse_width_range(500, 2550)
+        for servo_settings in LeArmConstants.SERVO_SETTINGS_LIST:
+            self.apply_servo_settings(servo_settings)
 
         self.update_base_to_wrist_frame_transformation()
 
@@ -29,6 +26,9 @@ class Arm:
     # Allows servos to be controlled outside the Arm object
     def get_kit(self):
         return self.kit
+
+    def apply_servo_settings(self, settings: list):
+        self.kit.servo[settings[0]].set_pulse_width_range(settings[1], settings[2])
 
     def update_servos_setpoints_raw(self, outputs: list):
         """

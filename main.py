@@ -14,7 +14,7 @@ Main.py - has arm.py for setting desired position and returning forward kinemati
 LeArm.py - 
 class Arm - puts together all of the link instances and in charge of kinematic operations
 class link - responsible for keeping track of link parameters
-    function homogeneous transorm, returns homogeneous transform
+    function homogeneous transform, returns homogeneous transform
 class linkParameters - helpful for storing and updating link parameters for a given link
 
 To Do List:

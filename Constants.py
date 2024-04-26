@@ -1,24 +1,44 @@
-import numpy as np
+"""
+Author - Joseph Amador
+All Constants for LeArm robotic arm project
+"""
 import math as m
 from enum import Enum
 
 
 def square(num):
+    """
+    Returns the square of the input
+    :param num:
+    :return: 
+    """
     return num * num
 
 
 class LeArmConstants:
+    """
+    All Constants for LeArm robotic arm project
+    """
     class GripperState(Enum):
+        """"
+        Enumerator for keeping track of gripper states
+        """
         OPEN = 0
         MIDDLE = 45
         CLOSED = 80
 
     # Enumerator for keeping track of Link Types
     class LinkType(Enum):
+        """
+        Enumerator for keeping track of link types
+        """
         REVOLUTE_LINK = 0
         PRISMATIC_LINK = 1
 
     class PINS(Enum):
+        """"
+        Enumerator for keeping track of servo pins
+        """
         SHOULDER = 0  # white
         ELBOW1 = 1  # green
         ELBOW2 = 2  # yellow
@@ -36,6 +56,12 @@ class LeArmConstants:
         [0, LINK3_LENGTH, 0, 0, LinkType.REVOLUTE_LINK],
         [-m.pi / 2, 0, 0, 0, LinkType.REVOLUTE_LINK]
     ]
+
+    SERVO_SETTINGS_LIST = [[PINS.SHOULDER.value, 450, 2700],
+                           [PINS.ELBOW1.value, 625, 2750],
+                           [PINS.ELBOW2.value, 550, 2675],
+                           [PINS.ELBOW3.value, 725, 2800],
+                           [PINS.WRIST.value, 500, 2550]]
 
     """
     orientations (found in vertical position)
