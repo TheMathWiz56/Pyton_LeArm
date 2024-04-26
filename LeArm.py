@@ -236,6 +236,7 @@ class ArmKinematics:
             new_point = True
 
         if new_point:
+            self.current_setpoint.theta6 = LeArmConstants.GripperState.MIDDLE.value
             planar_3_axis_solution = self.solve_3_axis_planar()
             return (
                 [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) - planar_3_axis_solution[1],
