@@ -207,16 +207,19 @@ class ArmKinematics:
         return m.sqrt(square(self.current_setpoint.x) + square(self.current_setpoint.z))
 
     def check_x_z_coordinate(self):
-        x = self.current_setpoint.x
-        z = self.current_setpoint.z
+        print(f"Desired x {self.current_setpoint.x}\nDesired z {self.current_setpoint.z}")
 
-        print(f"Desired x {x}\nDesired z {z}")
+        if self.get_x_z_length() > LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH:
+            print("Desired (x,z) cannot be achieved \nScaled to MAX extension")
+            self.scale_x_z_coordinate_wrt(LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH)
+        if self.get_x_z_length() < LeArmConstants.LINK2_LENGTH - LeArmConstants.LINK3_LENGTH:
+            print("Desired (x,z) cannot be achieved \nScaled to MIN extension")
+            self.scale_x_z_coordinate_wrt(LeArmConstants.LINK2_LENGTH - LeArmConstants.LINK3_LENGTH)
 
-        if m.sqrt(square(x) + square(z)) > LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH:
-            print("Desired (x,z) cannot be achieved \nScaled to max extension")
-            scaler = (LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH) / self.get_x_z_length()
-            self.current_setpoint.x = scaler * x
-            self.current_setpoint.z = scaler * z
+    def scale_x_z_coordinate_wrt(self, scale_against):
+        scaler = scale_against / self.get_x_z_length()
+        self.current_setpoint.x = scaler * self.current_setpoint.x
+        self.current_setpoint.z = scaler * self.current_setpoint.z
 
     def move_current_to_past_setpoint(self):
         self.past_setpoint.update_setpoints(self.current_setpoint.get_setpoint_as_list())
