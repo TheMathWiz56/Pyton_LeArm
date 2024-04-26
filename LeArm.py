@@ -33,7 +33,7 @@ class Arm:
             if output is not None:
                 if output > 180 or output < 0:
                     self.set_setpoint_to_servo_raw(90, LeArmConstants.PINS(i).value)
-                    print("Input Exceeded Allowed Range")
+                    print("Input Exceeded Allowed Range.")
                 else:
                     self.set_setpoint_to_servo_raw(output, LeArmConstants.PINS(i).value)
             i += 1
