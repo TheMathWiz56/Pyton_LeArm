@@ -17,6 +17,9 @@ class Arm:
 
         self.kit.servo[LeArmConstants.PINS.WRIST.value].set_pulse_width_range(500, 2550)
 
+        self.kit.servo[LeArmConstants.ELBOW1_VERTICAL].set_pulse_width_range(500, 2500)
+        self.kit.servo[LeArmConstants.ELBOW2_VERTICAL].set_pulse_width_range(500, 2500)
+
         self.update_base_to_wrist_frame_transformation()
 
     def update_base_to_wrist_frame_transformation(self):
