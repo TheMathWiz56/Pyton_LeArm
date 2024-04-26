@@ -46,13 +46,13 @@ class LeArmConstants:
     LINK2_LENGTH = 104
     LINK3_LENGTH = 89
 
-    LINK_PARAMETERS = np.array([
+    LINK_PARAMETERS = [
         [0, 0, 0, 0, LinkType.REVOLUTE_LINK],
-        [m.pi / 2, 10, 0, m.pi / 2, LinkType.REVOLUTE_LINK],
+        [m.pi / 2, 10, 0, 0, LinkType.REVOLUTE_LINK],
         [0, LINK2_LENGTH, 0, 0, LinkType.REVOLUTE_LINK],
         [0, LINK3_LENGTH, 0, 0, LinkType.REVOLUTE_LINK],
         [-m.pi / 2, 0, 0, 0, LinkType.REVOLUTE_LINK]
-    ])
+    ]
 
     # Vertical positions
     SHOULDER_VERTICAL = 124
@@ -71,3 +71,6 @@ class LeArmConstants:
     WRIST_STOW = 110
     STOW_POSITIONS_LIST = [SHOULDER_STOW, ELBOW1_STOW, ELBOW2_STOW, ELBOW3_STOW, WRIST_STOW,
                            GripperState.OPEN.value]
+
+    WRIST_TO_GRIPPER_DISTANCE = 95 + 20.13 + 27.55
+    GRIPPER_EVEN_BAR_LINK_LENGTH = 30

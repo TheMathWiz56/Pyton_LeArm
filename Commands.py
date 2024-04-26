@@ -27,7 +27,7 @@ class Command:
                     is_running = False
 
     def go_to_vertical_0(self):
-        self.le_arm.update_servos_setpoints(LeArmConstants.VERTICAL_POSITIONS_LIST)
+        self.le_arm.update_servos_setpoints_raw(LeArmConstants.VERTICAL_POSITIONS_LIST)
 
     def go_to_stow(self):
-        self.le_arm.update_servos_setpoints(LeArmConstants.STOW_POSITIONS_LIST)
+        self.le_arm.update_servos_setpoints_raw(LeArmConstants.STOW_POSITIONS_LIST)
