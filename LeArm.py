@@ -31,7 +31,11 @@ class Arm:
         i = 0
         for output in outputs:
             if output is not None:
-                self.set_setpoint_to_servo_raw(output, LeArmConstants.PINS(i).value)
+                if output > 180 or output < 0:
+                    self.set_setpoint_to_servo_raw(90, LeArmConstants.PINS(i).value)
+                    print("Input Exceeded Allowed Range")
+                else:
+                    self.set_setpoint_to_servo_raw(output, LeArmConstants.PINS(i).value)
             i += 1
 
     def set_setpoint_to_servo_raw(self, value, pin: int):
@@ -229,11 +233,11 @@ class ArmKinematics:
         if new_point:
             planar_3_axis_solution = self.solve_3_axis_planar()
             return (
-            [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) - planar_3_axis_solution[1],
-             LeArmConstants.ELBOW2_VERTICAL + planar_3_axis_solution[2], (LeArmConstants.ELBOW3_VERTICAL - 90)
-             + planar_3_axis_solution[3], LeArmConstants.GripperState.OPEN.value],
-            [LeArmConstants.SHOULDER_VERTICAL, planar_3_axis_solution[1], planar_3_axis_solution[2],
-             planar_3_axis_solution[3]])
+                [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) - planar_3_axis_solution[1],
+                 LeArmConstants.ELBOW2_VERTICAL + planar_3_axis_solution[2], (LeArmConstants.ELBOW3_VERTICAL - 90)
+                 + planar_3_axis_solution[3], LeArmConstants.GripperState.OPEN.value],
+                [LeArmConstants.SHOULDER_VERTICAL, planar_3_axis_solution[1], planar_3_axis_solution[2],
+                 planar_3_axis_solution[3]])
 
     def solve_3_axis_planar(self):
         # First remove the gripper vector from the arm position vector

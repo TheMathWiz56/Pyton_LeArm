@@ -42,6 +42,8 @@ def main():
     arm = LeArm.Arm()
     command_controller = Commands.Command(arm)
 
+    command_controller.initialize_arm()
+
     is_running = True
     while is_running:
         try:
