@@ -19,6 +19,7 @@ class LeArmConstants:
     """
     All Constants for LeArm robotic arm project
     """
+
     class GripperState(Enum):
         """"
         Enumerator for keeping track of gripper states
@@ -56,6 +57,8 @@ class LeArmConstants:
         [0, LINK3_LENGTH, 0, 0, LinkType.REVOLUTE_LINK],
         [-m.pi / 2, 0, 0, 0, LinkType.REVOLUTE_LINK]
     ]
+
+    X_SHIFT = LINK_PARAMETERS[1][1]
 
     SERVO_SETTINGS_LIST = [[PINS.SHOULDER.value, 450, 2700],
                            [PINS.ELBOW1.value, 625, 2750],

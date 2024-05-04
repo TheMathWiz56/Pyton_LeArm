@@ -54,6 +54,7 @@ def main():
             print("1) Servo Test")
             print("2) Go To Vertical 0")
             print("3) Go To Stow")
+            print("4) Go To Custom Point")
             user_input = input("Select Command: ")
 
             try:
@@ -64,6 +65,8 @@ def main():
                     command_controller.go_to_vertical_0()
                 elif user_input_int == 3:
                     command_controller.go_to_stow()
+                elif user_input_int == 4:
+                    command_controller.go_to()
                 else:
                     print("Invalid Input")
             except ValueError:

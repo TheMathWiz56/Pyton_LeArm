@@ -13,7 +13,8 @@ class Arm:
         self.link_list = LinkList()
         self.kit = ServoKit(channels=16)
         self.current_setpoint = ArmSetpoint()
-        self.kinematics = ArmKinematics(self.current_setpoint)
+        self.past_setpoint = ArmSetpoint()
+        self.kinematics = ArmKinematics(self.current_setpoint, self.past_setpoint)
 
         for servo_settings in LeArmConstants.SERVO_SETTINGS_LIST:
             self.apply_servo_settings(servo_settings)
@@ -68,10 +69,13 @@ class Arm:
         :param roll: RADIANS
         :return:
         """
-        (servo_outputs, theta_list) = self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint)
+        self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint)
+        servo_outputs = self.current_setpoint.get_servo_setpoint_list()
+        theta_list = self.current_setpoint.get_raw_theta_list_radians()
         print("Inverse Kinematics solved for: ")
         print(servo_outputs)
         print(theta_list)
+        # Doesn't include gripper updates
         self.update_servos_setpoints_raw(servo_outputs)
         self.link_list.update_joint_revolute_variables(theta_list)
         self.update_base_to_wrist_frame_transformation()
@@ -199,18 +203,38 @@ class ArmSetpoint:
         return [self.x, self.y, self.z, self.pitch, self.roll, self.theta1, self.theta2, self.theta3, self.theta4,
                 self.theta5, self.theta6]
 
-    def get_theta_list(self):
+    def get_raw_theta_list_radians(self):
+        """
+        raw means that angles have not been modified to represent real world servo setpoints
+        """
         return [self.theta1, self.theta2, self.theta3, self.theta4, self.theta5, self.theta6]
+
+    def get_servo_setpoint_list(self):
+        """
+        Returns servo angles from raw radians list
+
+        (
+                [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) -
+                 m.degrees(planar_3_axis_solution[1]), LeArmConstants.ELBOW2_VERTICAL +
+                 m.degrees(planar_3_axis_solution[2]), LeArmConstants.ELBOW3_VERTICAL
+                 + m.degrees(planar_3_axis_solution[3]), LeArmConstants.GripperState.MIDDLE.value],
+                [m.radians(LeArmConstants.SHOULDER_VERTICAL), planar_3_axis_solution[1], planar_3_axis_solution[2],
+                 planar_3_axis_solution[3], m.radians(LeArmConstants.WRIST_VERTICAL)])
+        """
+        return [m.degrees(self.theta1), (90 + LeArmConstants.ELBOW1_VERTICAL) -
+                 m.degrees(self.theta2), LeArmConstants.ELBOW2_VERTICAL +
+                 m.degrees(self.theta3), LeArmConstants.ELBOW3_VERTICAL
+                 + m.degrees(self.theta4)]
 
     def __str__(self):
         return self.get_setpoint_as_list().__str__()
 
 
 class ArmKinematics:
-    def __init__(self, current_setpoint: ArmSetpoint):
+    def __init__(self, current_setpoint: ArmSetpoint, past_setpoint: ArmSetpoint):
         # Should be set to default position, i.e. vertical
         self.current_setpoint = current_setpoint
-        self.past_setpoint = ArmSetpoint()
+        self.past_setpoint = past_setpoint
 
     # Careful to only use after the gripper vector has been removed from the arm setpoint
     def get_x_z_length(self):
@@ -235,7 +259,8 @@ class ArmKinematics:
         self.past_setpoint.update_setpoints(self.current_setpoint.get_setpoint_as_list())
 
     def compare(self, set1, set2):
-        past_angles = self.past_setpoint.get_theta_list()
+        # First check if angles are achievable
+        past_angles = self.past_setpoint.get_raw_theta_list_radians()
         travel1 = 0
         travel2 = 0
         for i in range(len(past_angles)):
@@ -286,13 +311,7 @@ class ArmKinematics:
         if new_point:
             planar_3_axis_solution = self.solve_3_axis_planar()
             print(planar_3_axis_solution)
-            return (
-                [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) -
-                 m.degrees(planar_3_axis_solution[1]), LeArmConstants.ELBOW2_VERTICAL +
-                 m.degrees(planar_3_axis_solution[2]), LeArmConstants.ELBOW3_VERTICAL
-                 + m.degrees(planar_3_axis_solution[3]), LeArmConstants.GripperState.MIDDLE.value],
-                [m.radians(LeArmConstants.SHOULDER_VERTICAL), planar_3_axis_solution[1], planar_3_axis_solution[2],
-                 planar_3_axis_solution[3], m.radians(LeArmConstants.WRIST_VERTICAL)])
+            #Need to update current_setpoint_list with new angles
 
     def solve_3_axis_planar(self):
         # First remove the gripper vector from the arm position vector
@@ -311,6 +330,11 @@ class ArmKinematics:
         self.current_setpoint.z = self.current_setpoint.z - gripper_v_z
 
         print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
+
+        # Shift vector to account for elbow1 displacement from center
+        # Need to think about when to solve for base angle (before or after shift)
+        self.current_setpoint.x = self.current_setpoint.x - LeArmConstants.X_SHIFT
+
 
         self.check_x_z_coordinate()
         print((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
