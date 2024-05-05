@@ -316,15 +316,15 @@ class ArmKinematics:
             if planar_3_axis_solution[0] is not None:
                 self.current_setpoint.theta1 = planar_3_axis_solution[0]
             if planar_3_axis_solution[1] is not None:
-                self.current_setpoint.theta1 = planar_3_axis_solution[1]
+                self.current_setpoint.theta2 = planar_3_axis_solution[1]
             if planar_3_axis_solution[2] is not None:
-                self.current_setpoint.theta1 = planar_3_axis_solution[2]
+                self.current_setpoint.theta3 = planar_3_axis_solution[2]
             if planar_3_axis_solution[3] is not None:
-                self.current_setpoint.theta1 = planar_3_axis_solution[3]
+                self.current_setpoint.theta4 = planar_3_axis_solution[3]
             if planar_3_axis_solution[4] is not None:
-                self.current_setpoint.theta1 = planar_3_axis_solution[4]
+                self.current_setpoint.theta5 = planar_3_axis_solution[4]
             if planar_3_axis_solution[5] is not None:
-                self.current_setpoint.theta1 = planar_3_axis_solution[5]
+                self.current_setpoint.theta6 = planar_3_axis_solution[5]
 
     def solve_3_axis_planar(self):
         # First remove the gripper vector from the arm position vector
