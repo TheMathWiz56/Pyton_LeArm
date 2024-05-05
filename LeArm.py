@@ -223,9 +223,9 @@ class ArmSetpoint:
                  planar_3_axis_solution[3], m.radians(LeArmConstants.WRIST_VERTICAL)])
         """
         return [m.degrees(self.theta1),
-                m.degrees(self.theta2), LeArmConstants.ELBOW2_VERTICAL +
+                m.degrees(self.theta2), LeArmConstants.ELBOW2_VERTICAL -
                 m.degrees(self.theta3), LeArmConstants.ELBOW3_VERTICAL
-                + m.degrees(self.theta4), m.degrees(self.theta5), m.degrees(self.theta6)]
+                - m.degrees(self.theta4), m.degrees(self.theta5), m.degrees(self.theta6)]
 
     def __str__(self):
         return self.get_setpoint_as_list().__str__()
