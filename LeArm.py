@@ -40,7 +40,7 @@ class Arm:
         i = 0
         for output in outputs:
             if output is not None:
-                if output > 180 or output < 0:
+                if output > 180:
                     self.set_setpoint_to_servo_raw(180, LeArmConstants.PINS(i).value)
                     print("Input Exceeded Allowed Range.")
                 elif output < 0:
