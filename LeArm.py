@@ -222,9 +222,9 @@ class ArmSetpoint:
                  planar_3_axis_solution[3], m.radians(LeArmConstants.WRIST_VERTICAL)])
         """
         return [m.degrees(self.theta1), (90 + LeArmConstants.ELBOW1_VERTICAL) -
-                 m.degrees(self.theta2), LeArmConstants.ELBOW2_VERTICAL +
-                 m.degrees(self.theta3), LeArmConstants.ELBOW3_VERTICAL
-                 + m.degrees(self.theta4)]
+                m.degrees(self.theta2), LeArmConstants.ELBOW2_VERTICAL +
+                m.degrees(self.theta3), LeArmConstants.ELBOW3_VERTICAL
+                + m.degrees(self.theta4)]
 
     def __str__(self):
         return self.get_setpoint_as_list().__str__()
@@ -292,6 +292,7 @@ class ArmKinematics:
         # All values will either be updated or kept the same
         # If they are kept the same, they may be the default 0 or the past value that wasn't updated
         new_point = False
+        # Make this prettier
         if x is not None:
             self.current_setpoint.x = x
             new_point = True
@@ -310,8 +311,19 @@ class ArmKinematics:
 
         if new_point:
             planar_3_axis_solution = self.solve_3_axis_planar()
-            print(planar_3_axis_solution)
-            #Need to update current_setpoint_list with new angles
+            # Make this prettier
+            if planar_3_axis_solution[0] is not None:
+                self.current_setpoint.theta1 = planar_3_axis_solution[0]
+            if planar_3_axis_solution[1] is not None:
+                self.current_setpoint.theta1 = planar_3_axis_solution[1]
+            if planar_3_axis_solution[2] is not None:
+                self.current_setpoint.theta1 = planar_3_axis_solution[2]
+            if planar_3_axis_solution[3] is not None:
+                self.current_setpoint.theta1 = planar_3_axis_solution[3]
+            if planar_3_axis_solution[4] is not None:
+                self.current_setpoint.theta1 = planar_3_axis_solution[4]
+            if planar_3_axis_solution[5] is not None:
+                self.current_setpoint.theta1 = planar_3_axis_solution[5]
 
     def solve_3_axis_planar(self):
         # First remove the gripper vector from the arm position vector
@@ -334,7 +346,6 @@ class ArmKinematics:
         # Shift vector to account for elbow1 displacement from center
         # Need to think about when to solve for base angle (before or after shift)
         self.current_setpoint.x = self.current_setpoint.x - LeArmConstants.X_SHIFT
-
 
         self.check_x_z_coordinate()
         print((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
