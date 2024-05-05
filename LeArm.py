@@ -222,7 +222,7 @@ class ArmSetpoint:
                 [m.radians(LeArmConstants.SHOULDER_VERTICAL), planar_3_axis_solution[1], planar_3_axis_solution[2],
                  planar_3_axis_solution[3], m.radians(LeArmConstants.WRIST_VERTICAL)])
         """
-        return [m.degrees(self.theta1), LeArmConstants.ELBOW1_VERTICAL +
+        return [m.degrees(self.theta1),
                 m.degrees(self.theta2), LeArmConstants.ELBOW2_VERTICAL +
                 m.degrees(self.theta3), LeArmConstants.ELBOW3_VERTICAL
                 + m.degrees(self.theta4), m.degrees(self.theta5), m.degrees(self.theta6)]
