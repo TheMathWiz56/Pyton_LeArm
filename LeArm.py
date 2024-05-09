@@ -333,7 +333,7 @@ class ArmKinematics:
         # Need to add shift for elbow1 being off center
         print("Inputted Coordinates:" + self.current_setpoint.__str__())
         print("Theta6: " + str(m.radians(self.current_setpoint.theta6)))
-        gripper_length = (m.sin(m.radians(self.current_setpoint.theta6)) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
+        gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
                           LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
         print("Gripper Vector Length:" + gripper_length.__str__())
 
