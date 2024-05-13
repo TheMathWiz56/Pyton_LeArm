@@ -44,6 +44,9 @@ class Command:
         self.le_arm.go_to(LeArmConstants.GripperState.MIDDLE.value, x=0, z=320, pitch=m.pi / 2)
 
     def go_to(self):
+        print(f"""MAX and MIN extensions (mm): with gripper removed:
+                \nMAX: {LeArmConstants.MAX_EXTENSION}
+                \nMIN: {LeArmConstants.MIN_EXTENSION}""")
         x = int(input("Enter the X coordinate: "))
         y = int(input("Enter the Y coordinate: "))
         z = int(input("Enter the Z coordinate: "))

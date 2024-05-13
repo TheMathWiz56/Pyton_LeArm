@@ -70,12 +70,15 @@ class Arm:
         :return:
         """
         self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint)
+
         servo_outputs = self.current_setpoint.get_servo_setpoint_list()
         theta_list = self.current_setpoint.get_raw_theta_list_radians()
         print("Inverse Kinematics solved for: ")
         print(self.current_setpoint.get_raw_theta_list_radians())
         print(servo_outputs)
         print(theta_list)
+
+
         # Doesn't include gripper updates
         self.update_servos_setpoints_raw(servo_outputs)
         self.link_list.update_joint_revolute_variables(theta_list)

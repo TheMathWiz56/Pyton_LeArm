@@ -96,3 +96,7 @@ class LeArmConstants:
 
     WRIST_TO_GRIPPER_DISTANCE = 95 + 20.075 + 27.53
     GRIPPER_EVEN_BAR_LINK_LENGTH = 30
+
+    #Extension (with gripper vector removed)
+    MAX_EXTENSION = LINK2_LENGTH + LINK3_LENGTH
+    MIN_EXTENSION = LINK2_LENGTH - LINK3_LENGTH

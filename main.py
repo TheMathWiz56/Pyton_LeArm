@@ -39,12 +39,15 @@ Issues:
 
 """
 
+def clearTerminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 
 def main():
     arm = LeArm.Arm()
     command_controller = Commands.Command(arm)
 
-    os.system('cls' if os.name == 'nt' else 'clear')
+    clearTerminal()
 
     command_controller.initialize_arm()
 
