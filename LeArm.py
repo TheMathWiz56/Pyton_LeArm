@@ -349,7 +349,7 @@ class ArmKinematics:
 
         # Shift vector to account for elbow1 displacement from center
         # Need to think about when to solve for base angle (before or after shift)
-        self.current_setpoint.x = self.current_setpoint.x - LeArmConstants.X_SHIFT
+        self.current_setpoint.x = self.current_setpoint.x + LeArmConstants.X_SHIFT
 
         self.check_x_z_coordinate()
         print((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
