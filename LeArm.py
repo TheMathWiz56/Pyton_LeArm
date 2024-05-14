@@ -315,21 +315,21 @@ class ArmKinematics:
         if new_point:
             planar_3_axis_solution = self.solve_3_axis_planar()
             # Make this prettier
-            """if planar_3_axis_solution[0] is not None:
-                self.current_setpoint.theta1 = planar_3_axis_solution[0]"""
+            if planar_3_axis_solution[0] is not None:
+                self.current_setpoint.theta1 = planar_3_axis_solution[0]
 
             # 3-axis solution
-            if planar_3_axis_solution[0] is not None:
-                self.current_setpoint.theta2 = planar_3_axis_solution[0]
             if planar_3_axis_solution[1] is not None:
-                self.current_setpoint.theta3 = planar_3_axis_solution[1]
+                self.current_setpoint.theta2 = planar_3_axis_solution[1]
             if planar_3_axis_solution[2] is not None:
-                self.current_setpoint.theta4 = planar_3_axis_solution[2]
+                self.current_setpoint.theta3 = planar_3_axis_solution[2]
+            if planar_3_axis_solution[3] is not None:
+                self.current_setpoint.theta4 = planar_3_axis_solution[3]
 
-            """if planar_3_axis_solution[4] is not None:
+            if planar_3_axis_solution[4] is not None:
                 self.current_setpoint.theta5 = planar_3_axis_solution[4]
             if planar_3_axis_solution[5] is not None:
-                self.current_setpoint.theta6 = planar_3_axis_solution[5]"""
+                self.current_setpoint.theta6 = planar_3_axis_solution[5]
 
     def solve_3_axis_planar(self):
         # First remove the gripper vector from the arm position vector
@@ -389,5 +389,5 @@ class ArmKinematics:
               f"theta3n: {theta_3_N}\n"
               f"theta4n: {theta_4_N}")
 
-        return self.compare([theta_2, theta_3, theta_4],
-                            [theta_2_N, theta_3_N, theta_4_N])
+        return self.compare([None, theta_2, theta_3, theta_4, None, None],
+                            [None, theta_2_N, theta_3_N, theta_4_N, None, None])
