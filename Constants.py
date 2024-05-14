@@ -52,10 +52,11 @@ class LeArmConstants:
 
     LINK_PARAMETERS = [
         [0, 0, 0, 0, LinkType.REVOLUTE_LINK],
-        [m.pi / 2, 10, 0, 0, LinkType.REVOLUTE_LINK],
+        [-m.pi / 2, 10, 0, 0, LinkType.REVOLUTE_LINK],
         [0, LINK2_LENGTH, 0, 0, LinkType.REVOLUTE_LINK],
         [0, LINK3_LENGTH, 0, 0, LinkType.REVOLUTE_LINK],
         [-m.pi / 2, 0, 0, 0, LinkType.REVOLUTE_LINK]
+        # Really has another prismatic link but that is handled separately
     ]
 
     X_SHIFT = LINK_PARAMETERS[1][1]
@@ -97,6 +98,6 @@ class LeArmConstants:
     WRIST_TO_GRIPPER_DISTANCE = 95 + 20.075 + 27.53
     GRIPPER_EVEN_BAR_LINK_LENGTH = 30
 
-    #Extension (with gripper vector removed)
+    # Extension (with gripper vector removed)
     MAX_EXTENSION = LINK2_LENGTH + LINK3_LENGTH
     MIN_EXTENSION = LINK2_LENGTH - LINK3_LENGTH
