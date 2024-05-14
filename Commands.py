@@ -45,12 +45,12 @@ class Command:
 
     def go_to(self):
         print(f"""MAX and MIN extensions (mm): with gripper removed:
-                \nMAX: {LeArmConstants.MAX_EXTENSION}
-                \nMIN: {LeArmConstants.MIN_EXTENSION}""")
+                MAX: {LeArmConstants.MAX_EXTENSION}
+                MIN: {LeArmConstants.MIN_EXTENSION}""")
         x = int(input("Enter the X coordinate: "))
         y = int(input("Enter the Y coordinate: "))
         z = int(input("Enter the Z coordinate: "))
         pitch = int(input("Enter the PITCH coordinate (DEGREES): "))
         roll = int(input("Enter the ROLL coordinate (DEGREES): "))
-        gripper_state = int(input("Enter 1 for gripper open, 2 fro gripper middle, 3 for gripper closed: "))
+        gripper_state = int(input("Enter 1 for gripper open, 2 for gripper middle, 3 for gripper closed: "))
         self.le_arm.go_to(get_gripper_state_from_input(gripper_state), x, y, z, m.radians(pitch), m.radians(roll))

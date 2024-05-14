@@ -78,7 +78,6 @@ class Arm:
         print(servo_outputs)
         print(theta_list)
 
-
         # Doesn't include gripper updates
         self.update_servos_setpoints_raw(servo_outputs)
         self.link_list.update_joint_revolute_variables(theta_list)
@@ -318,12 +317,15 @@ class ArmKinematics:
             # Make this prettier
             if planar_3_axis_solution[0] is not None:
                 self.current_setpoint.theta1 = planar_3_axis_solution[0]
+
+            # 3-axis solution
+            if planar_3_axis_solution[0] is not None:
+                self.current_setpoint.theta2 = planar_3_axis_solution[0]
             if planar_3_axis_solution[1] is not None:
-                self.current_setpoint.theta2 = planar_3_axis_solution[1]
+                self.current_setpoint.theta3 = planar_3_axis_solution[1]
             if planar_3_axis_solution[2] is not None:
-                self.current_setpoint.theta3 = planar_3_axis_solution[2]
-            if planar_3_axis_solution[3] is not None:
-                self.current_setpoint.theta4 = planar_3_axis_solution[3]
+                self.current_setpoint.theta4 = planar_3_axis_solution[2]
+
             if planar_3_axis_solution[4] is not None:
                 self.current_setpoint.theta5 = planar_3_axis_solution[4]
             if planar_3_axis_solution[5] is not None:
@@ -342,14 +344,16 @@ class ArmKinematics:
 
         gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
-        self.current_setpoint.x = self.current_setpoint.x - gripper_v_x
-        self.current_setpoint.z = self.current_setpoint.z - gripper_v_z
+        X = self.current_setpoint.x - gripper_v_x
+        Z = self.current_setpoint.z - gripper_v_z
 
         print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
 
+
+
         # Shift vector to account for elbow1 displacement from center
         # Need to think about when to solve for base angle (before or after shift)
-        self.current_setpoint.x = self.current_setpoint.x + LeArmConstants.X_SHIFT
+        X = X + LeArmConstants.X_SHIFT
 
         self.check_x_z_coordinate()
         print((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
@@ -360,7 +364,7 @@ class ArmKinematics:
                            (2 * LeArmConstants.LINK2_LENGTH * LeArmConstants.LINK3_LENGTH)))
         theta_3_N = -theta_3
 
-        beta = m.atan2(self.current_setpoint.z, self.current_setpoint.x)
+        beta = m.atan2(Z, X)
         psi = m.acos((square(self.get_x_z_length()) + square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)) /
                      (2 * LeArmConstants.LINK2_LENGTH * self.get_x_z_length()))
@@ -385,5 +389,5 @@ class ArmKinematics:
               f"theta3n: {theta_3_N}\n"
               f"theta4n: {theta_4_N}")
 
-        return self.compare([None, theta_2, theta_3, theta_4, None, self.current_setpoint.theta6],
-                            [None, theta_2_N, theta_3_N, theta_4_N, None, self.current_setpoint.theta6])
+        return self.compare([theta_2, theta_3, theta_4],
+                            [theta_2_N, theta_3_N, theta_4_N])

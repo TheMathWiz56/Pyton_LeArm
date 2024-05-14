@@ -36,7 +36,11 @@ Have the arm repeatably grab and stack 3D printed boxes (1x1x1 in.)
 simulation for arm without raspberry pi
 
 Issues:
+Scaling is doing weird things
 
+if a point is not achievable make the current point the past setpoint
+
+Should look into python pointers and more advanced class functionality
 """
 
 def clearTerminal():

@@ -100,4 +100,4 @@ class LeArmConstants:
 
     # Extension (with gripper vector removed)
     MAX_EXTENSION = LINK2_LENGTH + LINK3_LENGTH
-    MIN_EXTENSION = LINK2_LENGTH - LINK3_LENGTH
+    MIN_EXTENSION = LINK2_LENGTH # Just LINK2_LENGTH because of servo limitations
