@@ -344,8 +344,8 @@ class ArmKinematics:
 
         gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
-        X = self.current_setpoint.x - gripper_v_x
-        Z = self.current_setpoint.z - gripper_v_z
+        self.current_setpoint.x = self.current_setpoint.x - gripper_v_x
+        self.current_setpoint.z = self.current_setpoint.z - gripper_v_z
 
         print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
 
@@ -353,7 +353,7 @@ class ArmKinematics:
 
         # Shift vector to account for elbow1 displacement from center
         # Need to think about when to solve for base angle (before or after shift)
-        X = X + LeArmConstants.X_SHIFT
+        self.current_setpoint.x = self.current_setpoint.x + LeArmConstants.X_SHIFT
 
         self.check_x_z_coordinate()
         print((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
@@ -364,7 +364,7 @@ class ArmKinematics:
                            (2 * LeArmConstants.LINK2_LENGTH * LeArmConstants.LINK3_LENGTH)))
         theta_3_N = -theta_3
 
-        beta = m.atan2(Z, X)
+        beta = m.atan2(self.current_setpoint.z, self.current_setpoint.x)
         psi = m.acos((square(self.get_x_z_length()) + square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)) /
                      (2 * LeArmConstants.LINK2_LENGTH * self.get_x_z_length()))
