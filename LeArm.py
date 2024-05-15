@@ -1,6 +1,6 @@
 import numpy as np
 import math as m
-from Constants import LeArmConstants, square
+from Constants import LeArmConstants, square, get_2D_vector_length
 from adafruit_servokit import ServoKit
 
 np.set_printoptions(precision=5, suppress=True, )
@@ -238,6 +238,7 @@ class ArmKinematics:
         # Should be set to default position, i.e. vertical
         self.current_setpoint = current_setpoint
         self.past_setpoint = past_setpoint
+        self.temp_X = 0
 
     # Careful to only use after the gripper vector has been removed from the arm setpoint
     def get_x_z_length(self):
@@ -313,6 +314,11 @@ class ArmKinematics:
             new_point = True
 
         if new_point:
+            # Base Rotation
+            self.temp_X = self.current_setpoint.x
+            self.current_setpoint.theta1 = self.solve_for_base()
+            print(f"TEST FOR BASE ANGLE Angle: {self.current_setpoint.theta1}")
+
             planar_3_axis_solution = self.solve_3_axis_planar()
             # Make this prettier
             if planar_3_axis_solution[0] is not None:
@@ -348,8 +354,6 @@ class ArmKinematics:
         self.current_setpoint.z = self.current_setpoint.z - gripper_v_z
 
         print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
-
-
 
         # Shift vector to account for elbow1 displacement from center
         # Need to think about when to solve for base angle (before or after shift)
@@ -391,3 +395,11 @@ class ArmKinematics:
 
         return self.compare([None, theta_2, theta_3, theta_4, None, None],
                             [None, theta_2_N, theta_3_N, theta_4_N, None, None])
+
+    def solve_for_base(self):
+        temp = m.acos(self.current_setpoint.x / get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y))
+        if temp > 90:
+            temp -= 180
+        elif temp < -90:
+            temp += 180
+        return temp

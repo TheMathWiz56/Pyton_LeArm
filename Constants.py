@@ -15,6 +15,10 @@ def square(num):
     return num * num
 
 
+def get_2D_vector_length(x, y):
+    return m.sqrt(x * x + y * y)
+
+
 class LeArmConstants:
     """
     All Constants for LeArm robotic arm project
@@ -100,4 +104,4 @@ class LeArmConstants:
 
     # Extension (with gripper vector removed)
     MAX_EXTENSION = LINK2_LENGTH + LINK3_LENGTH
-    MIN_EXTENSION = LINK2_LENGTH # Just LINK2_LENGTH because of servo limitations
+    MIN_EXTENSION = LINK2_LENGTH  # Just LINK2_LENGTH because of servo limitations
