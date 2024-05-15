@@ -1,6 +1,6 @@
 import numpy as np
 import math as m
-from Constants import LeArmConstants, square, get_2D_vector_length
+from Constants import *
 from adafruit_servokit import ServoKit
 
 np.set_printoptions(precision=5, suppress=True, )
@@ -262,20 +262,49 @@ class ArmKinematics:
     def move_current_to_past_setpoint(self):
         self.past_setpoint.update_setpoints(self.current_setpoint.get_setpoint_as_list())
 
-    def compare(self, set1, set2):
-        # First check if angles are achievable
-        past_angles = self.past_setpoint.get_raw_theta_list_radians()
-        travel1 = 0
-        travel2 = 0
-        for i in range(len(past_angles)):
-            if set1[i] is not None:
-                travel1 = travel1 + m.fabs(set1[i] - past_angles[i])
-            if set2[i] is not None:
-                travel2 = travel2 + m.fabs(set2[i] - past_angles[i])
+    def compare(self, sol1, sol2):
+        """
+        Check if solutions are achievable
+        if both are, compares and returns the shorter path
 
-        if travel1 > travel2:
-            return set2
-        return set1
+        Should also do something if both not achievable
+        @param sol1:
+        @param sol2:
+        @return:
+        """
+        sol1_achievable = True
+        sol2_achievable = True
+        for i in range(len(sol1)):
+            if sol1_achievable:
+                sol1_achievable = check_angle_achievable(sol1[i])
+            if sol2_achievable:
+                sol2_achievable = check_angle_achievable(sol2[i])
+
+        if sol1_achievable and sol2_achievable:
+            travel1 = self.get_travel(sol1)
+            travel2 = self.get_travel(sol2)
+
+            if travel1 > travel2:
+                return sol2
+            return sol1
+        elif sol1_achievable:
+            return sol1
+        elif sol2_achievable:
+            return sol2
+
+        # Catch all for now
+        return [None, None, None]
+
+    def get_travel(self, solution):
+        """
+        Computes the travel for 3-axis planar angles due to the servos' limited range of motion
+        @return:
+        """
+        travel = 0
+        travel += m.fabs(solution[0] - self.past_setpoint.theta2)
+        travel += m.fabs(solution[1] - self.past_setpoint.theta3)
+        travel += m.fabs(solution[2] - self.past_setpoint.theta4)
+        return travel
 
     def solve(self, x, y, z, pitch, roll, gripper_setpoint):
         """
@@ -291,12 +320,26 @@ class ArmKinematics:
         :return:
         """
         self.move_current_to_past_setpoint()
-        self.current_setpoint.theta6 = m.radians(gripper_setpoint)
 
         # All values will either be updated or kept the same
         # If they are kept the same, they may be the default 0 or the past value that wasn't updated
+        new_point = self.check_update_current_setpoint(x, y, z, pitch, roll)
+
+        if new_point:
+            # Base Rotation
+            self.temp_X = get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
+            self.current_setpoint.theta1 = self.solve_for_base()
+            print(f"TEST FOR BASE ANGLE Angle: {self.current_setpoint.theta1}")\
+
+            self.clamp_wrist_angle()
+
+            self.current_setpoint.theta6 = m.radians(gripper_setpoint)
+
+            # 3-axis solution
+            self.check_update_current_setpoint_angles(self.solve_3_axis_planar())
+
+    def check_update_current_setpoint(self, x, y, z, pitch, roll):
         new_point = False
-        # Make this prettier
         if x is not None:
             self.current_setpoint.x = x
             new_point = True
@@ -312,36 +355,22 @@ class ArmKinematics:
         if roll is not None:
             self.current_setpoint.roll = roll
             new_point = True
+        return new_point
 
-        if new_point:
-            # Base Rotation
-            self.temp_X = self.current_setpoint.x
-            self.current_setpoint.theta1 = self.solve_for_base()
-            print(f"TEST FOR BASE ANGLE Angle: {self.current_setpoint.theta1}")
-
-            planar_3_axis_solution = self.solve_3_axis_planar()
-            # Make this prettier
-            if planar_3_axis_solution[0] is not None:
-                self.current_setpoint.theta1 = planar_3_axis_solution[0]
-
-            # 3-axis solution
-            if planar_3_axis_solution[1] is not None:
-                self.current_setpoint.theta2 = planar_3_axis_solution[1]
-            if planar_3_axis_solution[2] is not None:
-                self.current_setpoint.theta3 = planar_3_axis_solution[2]
-            if planar_3_axis_solution[3] is not None:
-                self.current_setpoint.theta4 = planar_3_axis_solution[3]
-
-            if planar_3_axis_solution[4] is not None:
-                self.current_setpoint.theta5 = planar_3_axis_solution[4]
-            if planar_3_axis_solution[5] is not None:
-                self.current_setpoint.theta6 = planar_3_axis_solution[5]
+    def check_update_current_setpoint_angles(self, planar_3_axis_solution):
+        if planar_3_axis_solution[0] is not None:
+            self.current_setpoint.theta2 = planar_3_axis_solution[0]
+        if planar_3_axis_solution[1] is not None:
+            self.current_setpoint.theta3 = planar_3_axis_solution[1]
+        if planar_3_axis_solution[2] is not None:
+            self.current_setpoint.theta4 = planar_3_axis_solution[2]
 
     def solve_3_axis_planar(self):
-        # First remove the gripper vector from the arm position vector
-        # It's important that theta6 is updated to its new desired value before it can be removed from the total vector
-        #   in order to ensure the proper amount has been removed
-        # Need to add shift for elbow1 being off center
+        """First remove the gripper vector from the arm position vector
+        It's important that theta6 is updated to its new desired value before it can be removed from the total vector
+           in order to ensure the proper amount has been removed
+        Need to add shift for elbow1 being off center
+        """
         print("Inputted Coordinates:" + self.current_setpoint.__str__())
         print("Theta6: " + str(m.radians(self.current_setpoint.theta6)))
         gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
@@ -386,18 +415,22 @@ class ArmKinematics:
               f"square L3: {square(LeArmConstants.LINK3_LENGTH)}\n"
               f"Denominator: {2 * LeArmConstants.LINK2_LENGTH * self.get_x_z_length()}")
 
-        print(f"theta2: {theta_2}\n "
+        print(f"theta2: {theta_2}\n"
               f"theta3: {theta_3}\n"
               f"theta4: {theta_4}\n"
               f"theta2n: {theta_2_N}\n"
               f"theta3n: {theta_3_N}\n"
               f"theta4n: {theta_4_N}")
 
-        return self.compare([None, theta_2, theta_3, theta_4, None, None],
-                            [None, theta_2_N, theta_3_N, theta_4_N, None, None])
+        return self.compare([theta_2, theta_3, theta_4],
+                            [theta_2_N, theta_3_N, theta_4_N])
 
     def solve_for_base(self):
         print(f"TESTFOR BASE ANGLE x:{self.current_setpoint.x}, y:{self.current_setpoint.y}")
         if get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y) != 0:
-            return m.acos(self.current_setpoint.x / get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y))
+            return m.acos(
+                self.current_setpoint.x / get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y))
         return 0
+
+    def clamp_wrist_angle(self):
+        self.current_setpoint.theta5 = clamp(self.current_setpoint.roll, 0, 180)

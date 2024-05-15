@@ -19,6 +19,21 @@ def get_2D_vector_length(x, y):
     return m.sqrt(x * x + y * y)
 
 
+def clamp(n, minn, maxn):
+    if n > maxn:
+        return maxn
+    if n < minn:
+        return minn
+
+
+def check_angle_achievable(angle):
+    if angle < 0:
+        return False
+    elif angle > 180:
+        return False
+    return True
+
+
 class LeArmConstants:
     """
     All Constants for LeArm robotic arm project
