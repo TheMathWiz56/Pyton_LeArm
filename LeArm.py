@@ -397,6 +397,7 @@ class ArmKinematics:
                             [None, theta_2_N, theta_3_N, theta_4_N, None, None])
 
     def solve_for_base(self):
+        print(f"TESTFOR BASE ANGLE x:{self.current_setpoint.x}, y:{self.current_setpoint.y}")
         if get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y) != 0:
             temp = m.acos(self.current_setpoint.x / get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y))
             if temp > 90:
