@@ -27,9 +27,9 @@ def clamp(n, minn, maxn):
 
 
 def check_angle_achievable(angle):
-    if angle < 0:
+    if angle < -m.pi:
         return False
-    elif angle > 180:
+    elif angle > m.pi:
         return False
     return True
 
