@@ -24,6 +24,7 @@ def clamp(n, minn, maxn):
         return maxn
     if n < minn:
         return minn
+    return n
 
 
 def check_angle_achievable(angle):
