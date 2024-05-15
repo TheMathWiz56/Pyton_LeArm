@@ -438,4 +438,5 @@ sol2_achievable: {sol2_achievable}""")
 
     def clamp_wrist_angle(self):
         self.current_setpoint.theta5 = clamp(self.current_setpoint.roll, 0, m.pi)
-        print(f"theta5: {self.current_setpoint.theta5}")
+        print(f"""theta5: {self.current_setpoint.theta5}
+roll: {self.current_setpoint.roll}""")
