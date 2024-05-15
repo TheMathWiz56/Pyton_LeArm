@@ -76,7 +76,6 @@ class Arm:
         print("Inverse Kinematics solved for: ")
         print(self.current_setpoint.get_raw_theta_list_radians())
         print(servo_outputs)
-        print(theta_list)
 
         # Doesn't include gripper updates
         self.update_servos_setpoints_raw(servo_outputs)
@@ -279,6 +278,11 @@ class ArmKinematics:
                 sol1_achievable = check_angle_achievable(sol1[i])
             if sol2_achievable:
                 sol2_achievable = check_angle_achievable(sol2[i])
+
+        print(f"""sol1: {sol1}
+sol1_achievable: {sol1_achievable}
+sol2: {sol2}
+sol2_achievable: {sol2_achievable}""")
 
         if sol1_achievable and sol2_achievable:
             travel1 = self.get_travel(sol1)
