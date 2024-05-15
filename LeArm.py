@@ -59,7 +59,7 @@ class Arm:
         """
         self.kit.servo[pin].angle = value
 
-    def go_to(self, gripper_setpoint, x=None, y=None, z=None, pitch=None, roll=None):
+    def go_to(self, gripper_setpoint, x=0, y=0, z=0, pitch=90, roll=90):
         """
         :param gripper_setpoint:
         :param x: mm
@@ -433,4 +433,4 @@ class ArmKinematics:
         return 0
 
     def clamp_wrist_angle(self):
-        self.current_setpoint.theta5 = clamp(self.current_setpoint.roll, 0, 180)
+        self.current_setpoint.theta5 = clamp(self.current_setpoint.roll, 0, m.pi)
