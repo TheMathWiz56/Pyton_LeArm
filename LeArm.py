@@ -241,22 +241,22 @@ class ArmKinematics:
         self.temp_X = 0
 
     # Careful to only use after the gripper vector has been removed from the arm setpoint
-    def get_x_z_length(self):
-        return m.sqrt(square(self.current_setpoint.x) + square(self.current_setpoint.z))
+    def get_tempx_z_length(self):
+        return m.sqrt(square(self.temp_X) + square(self.current_setpoint.z))
 
     def check_x_z_coordinate(self):
-        print(f"Desired x {self.current_setpoint.x}\nDesired z {self.current_setpoint.z}")
+        print(f"Desired x {self.temp_X}\nDesired z {self.current_setpoint.z}")
 
-        if self.get_x_z_length() > LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH:
+        if self.get_tempx_z_length() > LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH:
             print("Desired (x,z) cannot be achieved \nScaled to MAX extension")
             self.scale_x_z_coordinate_wrt(LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH)
-        if self.get_x_z_length() < LeArmConstants.LINK2_LENGTH - LeArmConstants.LINK3_LENGTH:
+        if self.get_tempx_z_length() < LeArmConstants.LINK2_LENGTH - LeArmConstants.LINK3_LENGTH:
             print("Desired (x,z) cannot be achieved \nScaled to MIN extension")
             self.scale_x_z_coordinate_wrt(LeArmConstants.LINK2_LENGTH - LeArmConstants.LINK3_LENGTH)
 
     def scale_x_z_coordinate_wrt(self, scale_against):
-        scaler = scale_against / self.get_x_z_length()
-        self.current_setpoint.x = scaler * self.current_setpoint.x
+        scaler = scale_against / self.get_tempx_z_length()
+        self.temp_X = scaler * self.temp_X
         self.current_setpoint.z = scaler * self.current_setpoint.z
 
     def move_current_to_past_setpoint(self):
@@ -379,28 +379,28 @@ class ArmKinematics:
 
         gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
-        self.current_setpoint.x = self.current_setpoint.x - gripper_v_x
+        self.temp_X = self.temp_X - gripper_v_x
         self.current_setpoint.z = self.current_setpoint.z - gripper_v_z
 
         print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
 
         # Shift vector to account for elbow1 displacement from center
         # Need to think about when to solve for base angle (before or after shift)
-        self.current_setpoint.x = self.current_setpoint.x + LeArmConstants.X_SHIFT
+        self.temp_X = self.temp_X + LeArmConstants.X_SHIFT
 
         self.check_x_z_coordinate()
-        print((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
+        print((square(self.get_tempx_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)))
 
-        theta_3 = -(m.acos((square(self.get_x_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
+        theta_3 = -(m.acos((square(self.get_tempx_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)) /
                            (2 * LeArmConstants.LINK2_LENGTH * LeArmConstants.LINK3_LENGTH)))
         theta_3_N = -theta_3
 
-        beta = m.atan2(self.current_setpoint.z, self.current_setpoint.x)
-        psi = m.acos((square(self.get_x_z_length()) + square(LeArmConstants.LINK2_LENGTH) - square(
+        beta = m.atan2(self.current_setpoint.z, self.temp_X)
+        psi = m.acos((square(self.get_tempx_z_length()) + square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)) /
-                     (2 * LeArmConstants.LINK2_LENGTH * self.get_x_z_length()))
+                     (2 * LeArmConstants.LINK2_LENGTH * self.get_tempx_z_length()))
 
         theta_2 = beta + psi
         theta_2_N = beta - psi
@@ -410,10 +410,10 @@ class ArmKinematics:
 
         print(f"psi: {psi}\n"
               f"beta: {beta}\n"
-              f"length xz: {self.get_x_z_length()}\n"
+              f"length xz: {self.get_tempx_z_length()}\n"
               f"square L2: {square(LeArmConstants.LINK2_LENGTH)}\n"
               f"square L3: {square(LeArmConstants.LINK3_LENGTH)}\n"
-              f"Denominator: {2 * LeArmConstants.LINK2_LENGTH * self.get_x_z_length()}")
+              f"Denominator: {2 * LeArmConstants.LINK2_LENGTH * self.get_tempx_z_length()}")
 
         print(f"theta2: {theta_2}\n"
               f"theta3: {theta_3}\n"
@@ -426,10 +426,10 @@ class ArmKinematics:
                             [theta_2_N, theta_3_N, theta_4_N])
 
     def solve_for_base(self):
-        print(f"TESTFOR BASE ANGLE x:{self.current_setpoint.x}, y:{self.current_setpoint.y}")
-        if get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y) != 0:
+        print(f"TESTFOR BASE ANGLE x:{self.temp_X}, y:{self.current_setpoint.y}")
+        if get_2D_vector_length(self.temp_X, self.current_setpoint.y) != 0:
             return m.acos(
-                self.current_setpoint.x / get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y))
+                self.temp_X / get_2D_vector_length(self.temp_X, self.current_setpoint.y))
         return 0
 
     def clamp_wrist_angle(self):
