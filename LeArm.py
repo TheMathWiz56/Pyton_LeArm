@@ -436,12 +436,14 @@ sol2_achievable: {sol2_achievable}""")
 
     def solve_for_base(self):
         print(f"TESTFOR BASE ANGLE x:{self.temp_X}, y:{self.current_setpoint.y}")
-        angle = m.pi/2
-        if self.current_setpoint.x != 0 and self.current_setpoint.y != 0:
+        angle = 0
+        if self.current_setpoint.x == 0 and self.current_setpoint.y != 0:
+            angle = m.pi/2
+        elif self.current_setpoint.x != 0 and self.current_setpoint.y == 0:
+            angle = 0
+        elif self.current_setpoint.x != 0 and self.current_setpoint.y != 0:
             angle = m.atan(self.current_setpoint.y/self.current_setpoint.x)
 
-        if angle > m.pi:
-            angle = angle - m.pi
         self.current_setpoint.theta1 = angle + m.pi/2
 
     def clamp_wrist_angle(self):
