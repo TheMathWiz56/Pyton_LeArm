@@ -69,6 +69,11 @@ class Arm:
         :param roll: RADIANS
         :return:
         """
+
+        "Rotate input by 180 in the xy plane"
+        x = -x
+        y = -y
+
         self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint)
 
         servo_outputs = self.current_setpoint.get_servo_setpoint_list()
