@@ -335,7 +335,9 @@ sol2_achievable: {sol2_achievable}""")
             self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
             if self.current_setpoint.x < 0:
                 self.temp_X = -self.temp_X
-            self.current_setpoint.theta1 = self.solve_for_base()- m.pi/2
+
+            self.solve_for_base()
+
             print(f"TEST FOR BASE ANGLE Angle: {self.current_setpoint.theta1}")\
 
             self.clamp_wrist_angle()
@@ -434,10 +436,13 @@ sol2_achievable: {sol2_achievable}""")
 
     def solve_for_base(self):
         print(f"TESTFOR BASE ANGLE x:{self.temp_X}, y:{self.current_setpoint.y}")
-        if get_2D_vector_length(self.temp_X, self.current_setpoint.y) != 0:
-            return m.acos(
-                self.temp_X / get_2D_vector_length(self.temp_X, self.current_setpoint.y))
-        return 0
+        angle = m.pi/2
+        if self.current_setpoint.x != 0 and self.current_setpoint.y != 0:
+            angle = m.atan(self.current_setpoint.y/self.current_setpoint.x)
+
+        if angle > m.pi:
+            angle = angle - m.pi
+        self.current_setpoint.theta1 = angle + m.pi/2
 
     def clamp_wrist_angle(self):
         self.current_setpoint.theta5 = clamp(self.current_setpoint.roll, 0, m.pi)
