@@ -71,8 +71,8 @@ class Arm:
         """
 
         "Rotate input by 180 in the xy plane"
-        x = -x
-        y = -y
+        """x = -x
+        y = -y"""
 
         self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint)
 
