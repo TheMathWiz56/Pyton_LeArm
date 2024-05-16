@@ -335,7 +335,7 @@ sol2_achievable: {sol2_achievable}""")
             self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
             if self.current_setpoint.x < 0:
                 self.temp_X = -self.temp_X
-            self.current_setpoint.theta1 = self.solve_for_base() + m.pi/2
+            self.current_setpoint.theta1 = self.solve_for_base()- m.pi/2
             print(f"TEST FOR BASE ANGLE Angle: {self.current_setpoint.theta1}")\
 
             self.clamp_wrist_angle()
