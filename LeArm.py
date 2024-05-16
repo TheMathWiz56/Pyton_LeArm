@@ -70,10 +70,6 @@ class Arm:
         :return:
         """
 
-        "Rotate input by 180 in the xy plane"
-        """x = -x
-        y = -y"""
-
         self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint)
 
         servo_outputs = self.current_setpoint.get_servo_setpoint_list()
@@ -336,7 +332,9 @@ sol2_achievable: {sol2_achievable}""")
 
         if new_point:
             # Base Rotation
-            self.temp_X = get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
+            self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
+            if self.current_setpoint.x < 0:
+                self.temp_X = -self.temp_X
             self.current_setpoint.theta1 = self.solve_for_base() + m.pi/2
             print(f"TEST FOR BASE ANGLE Angle: {self.current_setpoint.theta1}")\
 
