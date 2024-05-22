@@ -353,11 +353,13 @@ sol2_achievable: {sol2_achievable}""")
         if command_type.value == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
             pass
         elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
+            self.remove_gripper_length()
             self.clamp_tempx_z_vector()
+            self.add_gripper_length()
             base_tempx = self.temp_X
             base_z = self.current_setpoint.z
             change_tempx = self.temp_X / self.get_tempx_z_length()
-            change_z = self.temp_X / self.get_tempx_z_length()
+            change_z = self.current_setpoint.z / self.get_tempx_z_length()
 
             print(f"""Base_tempx : {base_tempx}
 Base_z : {base_z}
@@ -428,24 +430,38 @@ change_z : {change_z}""")
             self.move_past_to_current_setpoint()
             print("POINT NOT REACHABLE")
 
+    def remove_gripper_length(self):
+        gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
+                          LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
+
+        gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
+        gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
+        # print("Gripper Vector Length:" + gripper_length.__str__())
+        self.temp_X = self.temp_X - gripper_v_x
+        self.current_setpoint.z = self.current_setpoint.z - gripper_v_z
+
+    def add_gripper_length(self):
+        gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
+                          LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
+
+        gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
+        gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
+        # print("Gripper Vector Length:" + gripper_length.__str__())
+        self.temp_X = self.temp_X + gripper_v_x
+        self.current_setpoint.z = self.current_setpoint.z + gripper_v_z
+
+
     def solve_3_axis_planar(self):
         """First remove the gripper vector from the arm position vector
         It's important that theta6 is updated to its new desired value before it can be removed from the total vector
            in order to ensure the proper amount has been removed
         Need to add shift for elbow1 being off center
         """
-        #print("Inputted Coordinates:" + self.current_setpoint.__str__())
-        #print("Theta6: " + str(m.radians(self.current_setpoint.theta6)))
-        gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
-                          LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
-        #print("Gripper Vector Length:" + gripper_length.__str__())
+        # print("Inputted Coordinates:" + self.current_setpoint.__str__())
+        # print("Theta6: " + str(m.radians(self.current_setpoint.theta6)))
+        self.remove_gripper_length()
 
-        gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
-        gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
-        self.temp_X = self.temp_X - gripper_v_x
-        self.current_setpoint.z = self.current_setpoint.z - gripper_v_z
-
-        #print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
+        # print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
 
         # Shift vector to account for elbow1 displacement from center
         self.temp_X = self.temp_X + LeArmConstants.X_SHIFT
