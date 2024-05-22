@@ -59,9 +59,10 @@ class Arm:
         """
         self.kit.servo[pin].angle = value
 
-    def go_to(self, gripper_setpoint, x=0, y=0, z=0, pitch=90, roll=90):
+    def go_to(self, gripper_setpoint, command_type: LeArmConstants.CommandType, x=0, y=0, z=0, pitch=90, roll=90):
         """
         :param gripper_setpoint:
+        :param command_type
         :param x: mm
         :param y: mm
         :param z: mm
@@ -70,7 +71,7 @@ class Arm:
         :return:
         """
 
-        self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint)
+        self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint, command_type)
 
         servo_outputs = self.current_setpoint.get_servo_setpoint_list()
         theta_list = self.current_setpoint.get_raw_theta_list_radians()
@@ -262,6 +263,9 @@ class ArmKinematics:
     def move_current_to_past_setpoint(self):
         self.past_setpoint.update_setpoints(self.current_setpoint.get_setpoint_as_list())
 
+    def move_past_to_current_setpoint(self):
+        self.current_setpoint.update_setpoints(self.past_setpoint.get_setpoint_as_list())
+
     def compare(self, sol1, sol2):
         """
         Check if solutions are achievable
@@ -272,13 +276,8 @@ class ArmKinematics:
         @param sol2:
         @return:
         """
-        sol1_achievable = True
-        sol2_achievable = True
-        for i in range(len(sol1)):
-            if sol1_achievable:
-                sol1_achievable = check_angle_achievable(sol1[i])
-            if sol2_achievable:
-                sol2_achievable = check_angle_achievable(sol2[i])
+        sol1_achievable = check_servo_setpoint_list_achievable(sol1)
+        sol2_achievable = check_servo_setpoint_list_achievable(sol2)
 
         print(f"""sol1: {sol1}
 sol1_achievable: {sol1_achievable}
@@ -311,7 +310,7 @@ sol2_achievable: {sol2_achievable}""")
         travel += m.fabs(solution[2] - self.past_setpoint.theta4)
         return travel
 
-    def solve(self, x, y, z, pitch, roll, gripper_setpoint):
+    def solve(self, x, y, z, pitch, roll, gripper_setpoint, command_type: LeArmConstants.CommandType):
         """
         Takes in the angles in radians and returns the angles in degrees for the servos and raw angles in radians for
         storage
@@ -322,8 +321,10 @@ sol2_achievable: {sol2_achievable}""")
         :param pitch:
         :param roll:
         :param gripper_setpoint:
+        :param command_type
         :return:
         """
+
         self.move_current_to_past_setpoint()
 
         # All values will either be updated or kept the same
@@ -337,15 +338,22 @@ sol2_achievable: {sol2_achievable}""")
                 self.temp_X = -self.temp_X
 
             self.solve_for_base()
-
-            print(f"TEST FOR BASE ANGLE Angle: {self.current_setpoint.theta1}")\
-
             self.clamp_wrist_angle()
-
             self.current_setpoint.theta6 = m.radians(gripper_setpoint)
 
-            # 3-axis solution
-            self.check_update_current_setpoint_angles(self.solve_3_axis_planar())
+            if command_type.value == LeArmConstants.CommandType.FIXED.value:
+                if not self.check_update_current_setpoint_angles(self.solve_3_axis_planar()):
+                    self.move_past_to_current_setpoint()
+                    print("POINT NOT REACHABLE")
+
+            elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
+                pass
+
+            elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
+                pass
+
+    def recursive_solve(self, x, y, z, pitch, roll, gripper_setpoint, command_type: LeArmConstants.CommandType):
+        pass
 
     def check_update_current_setpoint(self, x, y, z, pitch, roll):
         new_point = False
@@ -369,10 +377,18 @@ sol2_achievable: {sol2_achievable}""")
     def check_update_current_setpoint_angles(self, planar_3_axis_solution):
         if planar_3_axis_solution[0] is not None:
             self.current_setpoint.theta2 = planar_3_axis_solution[0]
+        else:
+            return False
         if planar_3_axis_solution[1] is not None:
             self.current_setpoint.theta3 = planar_3_axis_solution[1]
+        else:
+            return False
         if planar_3_axis_solution[2] is not None:
             self.current_setpoint.theta4 = planar_3_axis_solution[2]
+        else:
+            return False
+
+        return True
 
     def solve_3_axis_planar(self):
         """First remove the gripper vector from the arm position vector
@@ -438,13 +454,13 @@ sol2_achievable: {sol2_achievable}""")
         print(f"TESTFOR BASE ANGLE x:{self.temp_X}, y:{self.current_setpoint.y}")
         angle = 0
         if self.current_setpoint.x == 0 and self.current_setpoint.y != 0:
-            angle = m.pi/2
+            angle = m.pi / 2
         elif self.current_setpoint.x != 0 and self.current_setpoint.y == 0:
             angle = 0
         elif self.current_setpoint.x != 0 and self.current_setpoint.y != 0:
-            angle = m.atan(self.current_setpoint.y/self.current_setpoint.x)
+            angle = m.atan(self.current_setpoint.y / self.current_setpoint.x)
 
-        self.current_setpoint.theta1 = angle + m.pi/2
+        self.current_setpoint.theta1 = angle + m.pi / 2
 
     def clamp_wrist_angle(self):
         self.current_setpoint.theta5 = clamp(self.current_setpoint.roll, 0, m.pi)

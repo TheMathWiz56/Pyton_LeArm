@@ -41,7 +41,7 @@ class Command:
         self.le_arm.update_servos_setpoints_raw(LeArmConstants.STOW_POSITIONS_LIST)
 
     def initialize_arm(self):
-        self.le_arm.go_to(LeArmConstants.GripperState.MIDDLE.value, x=0, z=320, pitch=m.pi / 2)
+        self.le_arm.go_to(LeArmConstants.GripperState.MIDDLE.value, x=0, z=320, pitch=m.pi / 2, command_type=LeArmConstants.CommandType.FIXED)
 
     def go_to(self):
         print(f"""MAX and MIN extensions (mm): with gripper removed:
@@ -53,4 +53,4 @@ class Command:
         pitch = int(input("Enter the PITCH coordinate (DEGREES): "))
         roll = int(input("Enter the ROLL coordinate (DEGREES): "))
         gripper_state = int(input("Enter 1 for gripper open, 2 for gripper middle, 3 for gripper closed: "))
-        self.le_arm.go_to(get_gripper_state_from_input(gripper_state), x, y, z, m.radians(pitch), m.radians(roll))
+        self.le_arm.go_to(get_gripper_state_from_input(gripper_state), LeArmConstants.CommandType.FIXED, x, y, z, m.radians(pitch), m.radians(roll))

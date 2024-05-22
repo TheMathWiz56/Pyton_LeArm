@@ -28,11 +28,21 @@ def clamp(n, minn, maxn):
 
 
 def check_angle_achievable(angle):
-    if angle < -m.pi/2:
+    if angle < -m.pi / 2:
         return False
-    elif angle > m.pi/2:
+    elif angle > m.pi / 2:
         return False
     return True
+
+
+def check_servo_setpoint_list_achievable(setpoint_list):
+    achievable = True
+    for i in range(len(setpoint_list)):
+        if achievable:
+            achievable = check_angle_achievable(setpoint_list[i])
+        else:
+            return achievable
+    return achievable
 
 
 class LeArmConstants:
@@ -55,6 +65,14 @@ class LeArmConstants:
         """
         REVOLUTE_LINK = 0
         PRISMATIC_LINK = 1
+
+    class CommandType(Enum):
+        """
+        Enumerator for specifying command type
+        """
+        FIXED = 0
+        ADJUSTABLE_PITCH = 1
+        ADJUSTABLE_POINT = 2
 
     class PINS(Enum):
         """"
