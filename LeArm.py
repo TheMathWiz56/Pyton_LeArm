@@ -243,20 +243,22 @@ class ArmKinematics:
 
     # Careful to only use after the gripper vector has been removed from the arm setpoint
     def get_tempx_z_length(self):
-        return m.sqrt(square(self.temp_X) + square(self.current_setpoint.z))
+        return get_2D_vector_length(self.temp_X, self.current_setpoint.z)
 
-    def check_x_z_coordinate(self):
+    def is_valid_x_z_coordinate(self):
         print(f"Desired x {self.temp_X}\nDesired z {self.current_setpoint.z}")
 
-        if self.get_tempx_z_length() > LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH:
-            print("Desired (x,z) cannot be achieved \nScaled to MAX extension")
-            self.scale_x_z_coordinate_wrt(LeArmConstants.LINK2_LENGTH + LeArmConstants.LINK3_LENGTH)
-        if self.get_tempx_z_length() < LeArmConstants.LINK2_LENGTH - LeArmConstants.LINK3_LENGTH:
-            print("Desired (x,z) cannot be achieved \nScaled to MIN extension")
-            self.scale_x_z_coordinate_wrt(LeArmConstants.LINK2_LENGTH - LeArmConstants.LINK3_LENGTH)
+        if self.get_tempx_z_length() > LeArmConstants.MAX_EXTENSION:
+            return False
+        if self.get_tempx_z_length() < LeArmConstants.MIN_EXTENSION:
+            return False
+        return True
 
-    def scale_x_z_coordinate_wrt(self, scale_against):
-        scaler = scale_against / self.get_tempx_z_length()
+    def clamp_tempx_z_vector(self):
+        if self.get_tempx_z_length() > LeArmConstants.MAX_EXTENSION:
+            scaler = LeArmConstants.MAX_EXTENSION / self.get_tempx_z_length()
+        elif self.get_tempx_z_length() < LeArmConstants.MIN_EXTENSION:
+            scaler = LeArmConstants.MIN_EXTENSION / self.get_tempx_z_length()
         self.temp_X = scaler * self.temp_X
         self.current_setpoint.z = scaler * self.current_setpoint.z
 
@@ -351,19 +353,38 @@ sol2_achievable: {sol2_achievable}""")
         if command_type.value == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
             pass
         elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
-            for i in range(max(LeArmConstants.MAX_EXTENSION - self.get_tempX_Z_2D_Vector_Length(),
-                               self.get_tempX_Z_2D_Vector_Length() - LeArmConstants.MIN_EXTENSION)):
+            self.clamp_tempx_z_vector()
+            base_tempx = self.temp_X
+            base_z = self.current_setpoint.z
+            change_tempx = self.temp_X / self.get_tempx_z_length()
+            change_z = self.temp_X / self.get_tempx_z_length()
+
+            for i in range(LeArmConstants.MAX_EXTENSION - self.get_tempx_z_length()):
                 # Now, using i as a multiplier, remove the unit vector times i
                 # until a solution is found or i goes out of range
-                pass
+                self.update_tempx_z_recursive(i, change_tempx, change_z, base_tempx, base_z)
+
+                solution = self.solve_3_axis_planar()
+                if solution[0] is not None:
+                    self.check_update_current_setpoint_angles(solution)
+                    break
+            for i in range(self.get_tempx_z_length() - LeArmConstants.MIN_EXTENSION):
+                self.update_tempx_z_recursive(-i, change_tempx, change_z, base_tempx, base_z)
+
+                solution = self.solve_3_axis_planar()
+                if solution[0] is not None:
+                    self.check_update_current_setpoint_angles(solution)
+                    break
 
     def solve_for_tempX(self):
         self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
         if self.current_setpoint.x < 0:
             self.temp_X = -self.temp_X
 
-    def get_tempX_Z_2D_Vector_Length(self):
-        return get_2D_vector_length(self.temp_X, self.current_setpoint.z)
+    def update_tempx_z_recursive(self, i, change_tempx, change_z, base_tempx, base_z):
+        self.temp_X = base_tempx + i * change_tempx
+        self.current_setpoint.z = base_z + i * change_z
+
 
     def check_new_point(self, x=None, y=None, z=None, pitch=None, roll=None):
         new_point = False
@@ -401,7 +422,6 @@ sol2_achievable: {sol2_achievable}""")
             self.move_past_to_current_setpoint()
             print("POINT NOT REACHABLE")
 
-        return True
 
     def solve_3_axis_planar(self):
         """First remove the gripper vector from the arm position vector
@@ -423,12 +443,11 @@ sol2_achievable: {sol2_achievable}""")
         print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
 
         # Shift vector to account for elbow1 displacement from center
-        # Need to think about when to solve for base angle (before or after shift)
         self.temp_X = self.temp_X + LeArmConstants.X_SHIFT
 
-        self.check_x_z_coordinate()
-        print((square(self.get_tempx_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
-            LeArmConstants.LINK3_LENGTH)))
+        # Return null when the vector with the gripper removed is not achievable
+        if not self.is_valid_x_z_coordinate():
+            return [None,None,None]
 
         theta_3 = -(m.acos((square(self.get_tempx_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)) /
