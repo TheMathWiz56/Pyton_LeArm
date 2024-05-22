@@ -359,11 +359,17 @@ sol2_achievable: {sol2_achievable}""")
             change_tempx = self.temp_X / self.get_tempx_z_length()
             change_z = self.temp_X / self.get_tempx_z_length()
 
+            print(f"""Base_tempx : {base_tempx}
+Base_z : {base_z}
+change_tempx : {change_tempx}
+change_z : {change_z}""")
+
             for i in range(int(LeArmConstants.MAX_EXTENSION - self.get_tempx_z_length())):
                 # Now, using i as a multiplier, remove the unit vector times i
                 # until a solution is found or i goes out of range
                 self.update_tempx_z_recursive(i, change_tempx, change_z, base_tempx, base_z)
 
+                print(f"{i}: solved using tempx : {self.temp_X} and z : {self.current_setpoint.z}")
                 solution = self.solve_3_axis_planar()
                 if solution[0] is not None:
                     self.check_update_current_setpoint_angles(solution)
@@ -371,6 +377,7 @@ sol2_achievable: {sol2_achievable}""")
             for i in range(int(self.get_tempx_z_length() - LeArmConstants.MIN_EXTENSION)):
                 self.update_tempx_z_recursive(-i, change_tempx, change_z, base_tempx, base_z)
 
+                print(f"{-i}: solved using tempx : {self.temp_X} and z : {self.current_setpoint.z}")
                 solution = self.solve_3_axis_planar()
                 if solution[0] is not None:
                     self.check_update_current_setpoint_angles(solution)
@@ -384,7 +391,6 @@ sol2_achievable: {sol2_achievable}""")
     def update_tempx_z_recursive(self, i, change_tempx, change_z, base_tempx, base_z):
         self.temp_X = base_tempx + i * change_tempx
         self.current_setpoint.z = base_z + i * change_z
-
 
     def check_new_point(self, x=None, y=None, z=None, pitch=None, roll=None):
         new_point = False
@@ -422,32 +428,31 @@ sol2_achievable: {sol2_achievable}""")
             self.move_past_to_current_setpoint()
             print("POINT NOT REACHABLE")
 
-
     def solve_3_axis_planar(self):
         """First remove the gripper vector from the arm position vector
         It's important that theta6 is updated to its new desired value before it can be removed from the total vector
            in order to ensure the proper amount has been removed
         Need to add shift for elbow1 being off center
         """
-        print("Inputted Coordinates:" + self.current_setpoint.__str__())
-        print("Theta6: " + str(m.radians(self.current_setpoint.theta6)))
+        #print("Inputted Coordinates:" + self.current_setpoint.__str__())
+        #print("Theta6: " + str(m.radians(self.current_setpoint.theta6)))
         gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
                           LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
-        print("Gripper Vector Length:" + gripper_length.__str__())
+        #print("Gripper Vector Length:" + gripper_length.__str__())
 
         gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
         self.temp_X = self.temp_X - gripper_v_x
         self.current_setpoint.z = self.current_setpoint.z - gripper_v_z
 
-        print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
+        #print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
 
         # Shift vector to account for elbow1 displacement from center
         self.temp_X = self.temp_X + LeArmConstants.X_SHIFT
 
         # Return null when the vector with the gripper removed is not achievable
         if not self.is_valid_x_z_coordinate():
-            return [None,None,None]
+            return [None, None, None]
 
         theta_3 = -(m.acos((square(self.get_tempx_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
             LeArmConstants.LINK3_LENGTH)) /
@@ -465,7 +470,7 @@ sol2_achievable: {sol2_achievable}""")
         theta_4 = self.current_setpoint.pitch - theta_2 - theta_3
         theta_4_N = self.current_setpoint.pitch - theta_2_N - theta_3_N
 
-        print(f"psi: {psi}\n"
+        """print(f"psi: {psi}\n"
               f"beta: {beta}\n"
               f"length xz: {self.get_tempx_z_length()}\n"
               f"square L2: {square(LeArmConstants.LINK2_LENGTH)}\n"
@@ -477,7 +482,7 @@ sol2_achievable: {sol2_achievable}""")
               f"theta4: {theta_4}\n"
               f"theta2n: {theta_2_N}\n"
               f"theta3n: {theta_3_N}\n"
-              f"theta4n: {theta_4_N}")
+              f"theta4n: {theta_4_N}")"""
 
         return self.compare([theta_2, theta_3, theta_4],
                             [theta_2_N, theta_3_N, theta_4_N])
