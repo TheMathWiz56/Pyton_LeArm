@@ -259,6 +259,8 @@ class ArmKinematics:
             scaler = LeArmConstants.MAX_EXTENSION / self.get_tempx_z_length()
         elif self.get_tempx_z_length() < LeArmConstants.MIN_EXTENSION:
             scaler = LeArmConstants.MIN_EXTENSION / self.get_tempx_z_length()
+        else:
+            scaler = 1
         self.temp_X = scaler * self.temp_X
         self.current_setpoint.z = scaler * self.current_setpoint.z
 
