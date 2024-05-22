@@ -452,7 +452,6 @@ change_z : {change_z}""")
         self.temp_X = self.temp_X + gripper_v_x
         self.current_setpoint.z = self.current_setpoint.z + gripper_v_z
 
-
     def solve_3_axis_planar(self):
         """First remove the gripper vector from the arm position vector
         It's important that theta6 is updated to its new desired value before it can be removed from the total vector
