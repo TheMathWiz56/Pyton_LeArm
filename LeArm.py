@@ -359,7 +359,7 @@ sol2_achievable: {sol2_achievable}""")
             change_tempx = self.temp_X / self.get_tempx_z_length()
             change_z = self.temp_X / self.get_tempx_z_length()
 
-            for i in range(LeArmConstants.MAX_EXTENSION - self.get_tempx_z_length()):
+            for i in range(int(LeArmConstants.MAX_EXTENSION - self.get_tempx_z_length())):
                 # Now, using i as a multiplier, remove the unit vector times i
                 # until a solution is found or i goes out of range
                 self.update_tempx_z_recursive(i, change_tempx, change_z, base_tempx, base_z)
@@ -368,7 +368,7 @@ sol2_achievable: {sol2_achievable}""")
                 if solution[0] is not None:
                     self.check_update_current_setpoint_angles(solution)
                     break
-            for i in range(self.get_tempx_z_length() - LeArmConstants.MIN_EXTENSION):
+            for i in range(int(self.get_tempx_z_length() - LeArmConstants.MIN_EXTENSION)):
                 self.update_tempx_z_recursive(-i, change_tempx, change_z, base_tempx, base_z)
 
                 solution = self.solve_3_axis_planar()
