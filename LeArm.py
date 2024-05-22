@@ -470,6 +470,7 @@ change_z : {change_z}""")
 
         # Return null when the vector with the gripper removed is not achievable
         if not self.is_valid_x_z_coordinate():
+            print("OUTSIDE REACHABLE RANGE")
             return [None, None, None]
 
         theta_3 = -(m.acos((square(self.get_tempx_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
