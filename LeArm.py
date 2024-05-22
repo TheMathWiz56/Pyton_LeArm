@@ -459,11 +459,11 @@ change_z : {change_z}""")
            in order to ensure the proper amount has been removed
         Need to add shift for elbow1 being off center
         """
-        # print("Inputted Coordinates:" + self.current_setpoint.__str__())
-        # print("Theta6: " + str(m.radians(self.current_setpoint.theta6)))
+        print("Inputted Coordinates:" + self.current_setpoint.__str__())
+        print("Theta6: " + str(m.radians(self.current_setpoint.theta6)))
         self.remove_gripper_length()
 
-        # print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
+        print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
 
         # Shift vector to account for elbow1 displacement from center
         self.temp_X = self.temp_X + LeArmConstants.X_SHIFT
