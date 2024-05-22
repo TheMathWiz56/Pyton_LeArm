@@ -329,33 +329,43 @@ sol2_achievable: {sol2_achievable}""")
 
         # All values will either be updated or kept the same
         # If they are kept the same, they may be the default 0 or the past value that wasn't updated
-        new_point = self.check_update_current_setpoint(x, y, z, pitch, roll)
+        new_point = self.check_new_point(x, y, z, pitch, roll)
 
         if new_point:
             # Base Rotation
-            self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
-            if self.current_setpoint.x < 0:
-                self.temp_X = -self.temp_X
+            self.solve_for_tempX()
 
             self.solve_for_base()
             self.clamp_wrist_angle()
             self.current_setpoint.theta6 = m.radians(gripper_setpoint)
 
             if command_type.value == LeArmConstants.CommandType.FIXED.value:
-                if not self.check_update_current_setpoint_angles(self.solve_3_axis_planar()):
-                    self.move_past_to_current_setpoint()
-                    print("POINT NOT REACHABLE")
+                self.check_update_current_setpoint_angles(self.solve_3_axis_planar())
+            else:
+                self.recursive_solve(x, y, z, pitch, command_type)
 
-            elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
+    def recursive_solve(self, x, y, z, pitch, command_type: LeArmConstants.CommandType):
+        """
+        Use a for loop to check until a condition, break loop if it finds a solution
+        """
+        if command_type.value == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
+            pass
+        elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
+            for i in range(max(LeArmConstants.MAX_EXTENSION - self.get_tempX_Z_2D_Vector_Length(),
+                               self.get_tempX_Z_2D_Vector_Length() - LeArmConstants.MIN_EXTENSION)):
+                # Now, using i as a multiplier, remove the unit vector times i
+                # until a solution is found or i goes out of range
                 pass
 
-            elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
-                pass
+    def solve_for_tempX(self):
+        self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
+        if self.current_setpoint.x < 0:
+            self.temp_X = -self.temp_X
 
-    def recursive_solve(self, x, y, z, pitch, roll, gripper_setpoint, command_type: LeArmConstants.CommandType):
-        pass
+    def get_tempX_Z_2D_Vector_Length(self):
+        return get_2D_vector_length(self.temp_X, self.current_setpoint.z)
 
-    def check_update_current_setpoint(self, x, y, z, pitch, roll):
+    def check_new_point(self, x=None, y=None, z=None, pitch=None, roll=None):
         new_point = False
         if x is not None:
             self.current_setpoint.x = x
@@ -378,15 +388,18 @@ sol2_achievable: {sol2_achievable}""")
         if planar_3_axis_solution[0] is not None:
             self.current_setpoint.theta2 = planar_3_axis_solution[0]
         else:
-            return False
+            self.move_past_to_current_setpoint()
+            print("POINT NOT REACHABLE")
         if planar_3_axis_solution[1] is not None:
             self.current_setpoint.theta3 = planar_3_axis_solution[1]
         else:
-            return False
+            self.move_past_to_current_setpoint()
+            print("POINT NOT REACHABLE")
         if planar_3_axis_solution[2] is not None:
             self.current_setpoint.theta4 = planar_3_axis_solution[2]
         else:
-            return False
+            self.move_past_to_current_setpoint()
+            print("POINT NOT REACHABLE")
 
         return True
 

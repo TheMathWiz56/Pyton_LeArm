@@ -43,6 +43,7 @@ if a point is not achievable make the current point the past setpoint
 Should look into python pointers and more advanced class functionality
 """
 
+
 def clearTerminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -58,7 +59,6 @@ def main():
     is_running = True
     while is_running:
         try:
-            # os.system('cls' if os.name == 'nt' else 'clear')
             print("Type the number of the desired command:")
             print("1) Servo Test")
             print("2) Go To Vertical 0")

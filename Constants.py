@@ -16,6 +16,11 @@ def square(num):
 
 
 def get_2D_vector_length(x, y):
+    """
+    :param x
+    :param y
+    :return: the length of the 2D vector with components <x,y>
+    """
     return m.sqrt(x * x + y * y)
 
 
@@ -138,4 +143,4 @@ class LeArmConstants:
 
     # Extension (with gripper vector removed)
     MAX_EXTENSION = LINK2_LENGTH + LINK3_LENGTH
-    MIN_EXTENSION = LINK2_LENGTH  # Just LINK2_LENGTH because of servo limitations
+    MIN_EXTENSION = get_2D_vector_length(LINK2_LENGTH, LINK3_LENGTH)  # Just LINK2_LENGTH because of servo limitations
