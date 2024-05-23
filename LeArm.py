@@ -261,6 +261,8 @@ class ArmKinematics:
             scaler = LeArmConstants.MIN_EXTENSION / self.get_tempx_z_length()
         else:
             scaler = 1
+
+        print(f"scaler : {scaler}, length : {self.get_tempx_z_length()}")
         self.temp_X = scaler * self.temp_X
         self.current_setpoint.z = scaler * self.current_setpoint.z
 
