@@ -358,6 +358,8 @@ sol2_achievable: {sol2_achievable}""")
             pass
         elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
             self.remove_gripper_length()
+            base_tempx_no_gripper = self.temp_X
+            base_z_no_gripper = self.current_setpoint.z
             self.clamp_tempx_z_vector()
             self.add_gripper_length()
             base_tempx = self.temp_X
@@ -375,7 +377,7 @@ change_z : {change_z}""")
                 # until a solution is found or i goes out of range
                 self.update_tempx_z_recursive(i, change_tempx, change_z, base_tempx, base_z)
 
-                print(f"{i}: solved using tempx : {self.temp_X} and z : {self.current_setpoint.z}")
+                # print(f"{i}: solved using tempx : {self.temp_X} and z : {self.current_setpoint.z}")
                 solution = self.solve_3_axis_planar()
                 if solution[0] is not None:
                     self.check_update_current_setpoint_angles(solution)
@@ -383,7 +385,7 @@ change_z : {change_z}""")
             for i in range(int(self.get_tempx_z_length() - LeArmConstants.MIN_EXTENSION)):
                 self.update_tempx_z_recursive(-i, change_tempx, change_z, base_tempx, base_z)
 
-                print(f"{-i}: solved using tempx : {self.temp_X} and z : {self.current_setpoint.z}")
+                # print(f"{-i}: solved using tempx : {self.temp_X} and z : {self.current_setpoint.z}")
                 solution = self.solve_3_axis_planar()
                 if solution[0] is not None:
                     self.check_update_current_setpoint_angles(solution)
