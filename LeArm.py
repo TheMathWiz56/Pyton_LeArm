@@ -59,15 +59,16 @@ def compare(sol1, sol2, past_setpoint):
     Should also do something if both not achievable
     @param sol1:
     @param sol2:
+    @param past_setpoint
     @return:
     """
     sol1_achievable = check_servo_setpoint_list_achievable(sol1)
     sol2_achievable = check_servo_setpoint_list_achievable(sol2)
 
-    print(f"""sol1: {sol1}
-sol1_achievable: {sol1_achievable}
-sol2: {sol2}
-sol2_achievable: {sol2_achievable}""")
+    # print(f"""sol1: {sol1}
+    # sol1_achievable: {sol1_achievable}
+    # sol2: {sol2}
+    # sol2_achievable: {sol2_achievable}""")
 
     if sol1_achievable and sol2_achievable:
         travel1 = get_travel(sol1, past_setpoint)
@@ -139,6 +140,7 @@ Need to add shift for elbow1 being off center
               f"theta4n: {theta_4_N}")"""
 
     return compare([theta_2, theta_3, theta_4], [theta_2_N, theta_3_N, theta_4_N], past_setpoint)
+
 
 def get_forward_kinematics(link_list: LinkList):
     base_to_wrist_frame_transformation = np.identity(4)
@@ -293,20 +295,22 @@ class ArmKinematics:
 
         if new_point:
             # Base Rotation
-            self.solve_for_tempX()
+            self.update_tempX()
 
-            solve_for_base()
-            clamp_wrist_angle()
+            self.current_setpoint.theta1 = solve_for_base(x, y)
+            self.current_setpoint.theta5 = clamp_wrist_angle(self.current_setpoint.roll)
             self.current_setpoint.theta6 = m.radians(gripper_setpoint)
 
             if command_type.value == LeArmConstants.CommandType.FIXED.value:
-                self.check_update_current_setpoint_angles(solve_3_axis_planar())
+                self.check_update_current_setpoint_angles(solve_3_axis_planar(self.temp_X, self.current_setpoint.z,
+                                                                              self.current_setpoint.pitch,
+                                                                              self.past_setpoint.get_3_axis_list()))
             elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
                 pass
             elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
                 pass
 
-    def solve_for_tempX(self):
+    def update_tempX(self):
         self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
         if self.current_setpoint.x < 0:
             self.temp_X = -self.temp_X

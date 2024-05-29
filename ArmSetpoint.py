@@ -38,6 +38,9 @@ class ArmSetpoint:
         return [self.x, self.y, self.z, self.pitch, self.roll, self.theta1, self.theta2, self.theta3, self.theta4,
                 self.theta5, self.theta6]
 
+    def get_3_axis_list(self):
+        return [self.theta2, self.theta3, self.theta4]
+
     def get_raw_theta_list_radians(self):
         """
         raw means that angles have not been modified to represent real world servo setpoints
