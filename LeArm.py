@@ -18,6 +18,15 @@ def check_angle_achievable(angle):
     return True
 
 
+def is_valid_x_z_coordinate(x, z):
+    print(f"Desired x {x}\nDesired z {z}")
+    xz_length = get_2D_vector_length(x, z)
+
+    if xz_length > LeArmConstants.MAX_EXTENSION or xz_length < LeArmConstants.MIN_EXTENSION:
+        return False
+    return True
+
+
 def check_angle_achievable_elbow1(angle):
     if angle < 0:
         return False
@@ -223,9 +232,9 @@ class Arm:
 
         servo_outputs = self.current_setpoint.get_servo_setpoint_list()
         theta_list = self.current_setpoint.get_raw_theta_list_radians()
-        print("Inverse Kinematics solved for: ")
-        print(self.current_setpoint.get_raw_theta_list_radians())
-        print(servo_outputs)
+        # print("Inverse Kinematics solved for: ")
+        # print(self.current_setpoint.get_raw_theta_list_radians())
+        # print(servo_outputs)
 
         # Doesn't include gripper updates
         self.update_servos_setpoints_raw(servo_outputs)
@@ -246,15 +255,6 @@ class ArmKinematics:
     # Careful to only use after the gripper vector has been removed from the arm setpoint
     def get_tempx_z_length(self):
         return get_2D_vector_length(self.temp_X, self.current_setpoint.z)
-
-    def is_valid_x_z_coordinate(self):
-        print(f"Desired x {self.temp_X}\nDesired z {self.current_setpoint.z}")
-
-        if self.get_tempx_z_length() > LeArmConstants.MAX_EXTENSION:
-            return False
-        if self.get_tempx_z_length() < LeArmConstants.MIN_EXTENSION:
-            return False
-        return True
 
     def clamp_tempx_z_vector(self):
         if self.get_tempx_z_length() > LeArmConstants.MAX_EXTENSION:
@@ -310,7 +310,7 @@ class ArmKinematics:
             pitch : {self.current_setpoint.pitch}""")
 
             if command_type.value == LeArmConstants.CommandType.FIXED.value:
-                if not self.is_valid_x_z_coordinate():
+                if not is_valid_x_z_coordinate(x3, z3):
                     print("OUTSIDE REACHABLE RANGE")
                     self.move_past_to_current_setpoint()
                 else:
