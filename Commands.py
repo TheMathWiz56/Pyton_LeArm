@@ -53,4 +53,4 @@ class Command:
         pitch = int(input("Enter the PITCH coordinate (DEGREES): "))
         roll = int(input("Enter the ROLL coordinate (DEGREES): "))
         gripper_state = int(input("Enter 1 for gripper open, 2 for gripper middle, 3 for gripper closed: "))
-        self.le_arm.go_to(get_gripper_state_from_input(gripper_state), LeArmConstants.CommandType.ADJUSTABLE_POINT, x, y, z, m.radians(pitch), m.radians(roll))
+        self.le_arm.go_to(get_gripper_state_from_input(gripper_state), LeArmConstants.CommandType.FIXED, x, y, z, m.radians(pitch), m.radians(roll))
