@@ -32,35 +32,6 @@ def clamp(n, minn, maxn):
     return n
 
 
-def check_angle_achievable(angle):
-    if angle < -m.pi / 2:
-        return False
-    elif angle > m.pi / 2:
-        return False
-    return True
-
-
-def check_angle_achievable_elbow1(angle):
-    if angle < 0:
-        return False
-    elif angle > m.pi:
-        return False
-    return True
-
-
-def check_servo_setpoint_list_achievable(setpoint_list):
-    achievable = True
-    for i in range(len(setpoint_list)):
-        if achievable:
-            if i == 0:
-                achievable = check_angle_achievable_elbow1(setpoint_list[i])
-            else:
-                achievable = check_angle_achievable(setpoint_list[i])
-        else:
-            return achievable
-    return achievable
-
-
 class LeArmConstants:
     """
     All Constants for LeArm robotic arm project

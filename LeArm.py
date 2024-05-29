@@ -2,9 +2,154 @@ import numpy as np
 import math as m
 from Constants import *
 from adafruit_servokit import ServoKit
+from ArmSetpoint import ArmSetpoint
+from Link import LinkList
 
 np.set_printoptions(precision=5, suppress=True, )
 
+
+# ____________________________________________________________________________________________________________________
+# Functions
+def check_angle_achievable(angle):
+    if angle < -m.pi / 2:
+        return False
+    elif angle > m.pi / 2:
+        return False
+    return True
+
+
+def check_angle_achievable_elbow1(angle):
+    if angle < 0:
+        return False
+    elif angle > m.pi:
+        return False
+    return True
+
+
+def check_servo_setpoint_list_achievable(setpoint_list):
+    achievable = True
+    for i in range(len(setpoint_list)):
+        if achievable:
+            if i == 0:
+                achievable = check_angle_achievable_elbow1(setpoint_list[i])
+            else:
+                achievable = check_angle_achievable(setpoint_list[i])
+        else:
+            return achievable
+    return achievable
+
+
+def get_travel(solution, past_setpoint):
+    """
+    Computes the travel for 3-axis planar angles due to the servos' limited range of motion
+    @return:
+    """
+    travel = 0
+    travel += m.fabs(solution[0] - past_setpoint[0])
+    travel += m.fabs(solution[1] - past_setpoint[1])
+    travel += m.fabs(solution[2] - past_setpoint[2])
+    return travel
+
+
+def compare(sol1, sol2, past_setpoint):
+    """
+    Check if solutions are achievable
+    if both are, compares and returns the shorter path
+
+    Should also do something if both not achievable
+    @param sol1:
+    @param sol2:
+    @return:
+    """
+    sol1_achievable = check_servo_setpoint_list_achievable(sol1)
+    sol2_achievable = check_servo_setpoint_list_achievable(sol2)
+
+    print(f"""sol1: {sol1}
+sol1_achievable: {sol1_achievable}
+sol2: {sol2}
+sol2_achievable: {sol2_achievable}""")
+
+    if sol1_achievable and sol2_achievable:
+        travel1 = get_travel(sol1, past_setpoint)
+        travel2 = get_travel(sol2, past_setpoint)
+
+        if travel1 > travel2:
+            return sol2
+        return sol1
+    elif sol1_achievable:
+        return sol1
+    elif sol2_achievable:
+        return sol2
+
+    # Catch all for now
+    return [None, None, None]
+
+
+def solve_for_base(x, y):
+    angle = 0
+    if x == 0 and y != 0:
+        angle = m.pi / 2
+    elif x != 0 and y == 0:
+        angle = 0
+    elif x != 0 and y != 0:
+        angle = m.atan(y / x)
+
+    return angle + m.pi / 2
+
+
+def clamp_wrist_angle(roll):
+    return clamp(roll, 0, m.pi)
+
+
+def solve_3_axis_planar(x, z, pitch, past_setpoint):
+    """First remove the gripper vector from the arm position vector
+It's important that theta6 is updated to its new desired value before it can be removed from the total vector
+   in order to ensure the proper amount has been removed
+Need to add shift for elbow1 being off center
+"""
+    xz_length = get_2D_vector_length(x, z)
+    theta_3 = -(m.acos((square(xz_length) - square(LeArmConstants.LINK2_LENGTH) - square(
+        LeArmConstants.LINK3_LENGTH)) /
+                       (2 * LeArmConstants.LINK2_LENGTH * LeArmConstants.LINK3_LENGTH)))
+    theta_3_N = -theta_3
+
+    beta = m.atan2(z, x)
+    psi = m.acos((square(xz_length) + square(LeArmConstants.LINK2_LENGTH) - square(
+        LeArmConstants.LINK3_LENGTH)) /
+                 (2 * LeArmConstants.LINK2_LENGTH * xz_length))
+
+    theta_2 = beta + psi
+    theta_2_N = beta - psi
+
+    theta_4 = pitch - theta_2 - theta_3
+    theta_4_N = pitch - theta_2_N - theta_3_N
+
+    """print(f"psi: {psi}\n"
+              f"beta: {beta}\n"
+              f"length xz: {self.get_tempx_z_length()}\n"
+              f"square L2: {square(LeArmConstants.LINK2_LENGTH)}\n"
+              f"square L3: {square(LeArmConstants.LINK3_LENGTH)}\n"
+              f"Denominator: {2 * LeArmConstants.LINK2_LENGTH * self.get_tempx_z_length()}")
+
+    print(f"theta2: {theta_2}\n"
+        f"theta3: {theta_3}\n"
+              f"theta4: {theta_4}\n"
+              f"theta2n: {theta_2_N}\n"
+              f"theta3n: {theta_3_N}\n"
+              f"theta4n: {theta_4_N}")"""
+
+    return compare([theta_2, theta_3, theta_4], [theta_2_N, theta_3_N, theta_4_N], past_setpoint)
+
+def get_forward_kinematics(link_list: LinkList):
+    base_to_wrist_frame_transformation = np.identity(4)
+
+    for link in link_list.get_list_reversed():
+        base_to_wrist_frame_transformation = np.matmul(link.get_homogeneous_transform(),
+                                                       base_to_wrist_frame_transformation)
+    return base_to_wrist_frame_transformation
+
+
+# ____________________________________________________________________________________________________________________
 
 # Arm class - generates base to end-effector transform, handles kinematic operations, handles servo periodic??? update
 class Arm:
@@ -88,152 +233,6 @@ class Arm:
         return self.base_to_wrist_frame_transformation
 
 
-# Link class - generates homogeneous transforms
-class Link:
-    def __init__(self, link_parameters, link_type: LeArmConstants.LinkType):
-        # a, alpha, d, theta, link_type
-        self.link_parameters = LinkParameters(link_parameters[0], link_parameters[1], link_parameters[2],
-                                              link_parameters[3])
-        self.link_type = link_type
-
-        self.homogeneous_transform = None
-        self.update_homogeneous_transform()
-
-    def update_joint_variable(self, value):
-        if self.link_type.value == LeArmConstants.LinkType.REVOLUTE_LINK.value:
-            self.link_parameters.theta = value
-        else:
-            self.link_parameters.d = value
-
-    def update_homogeneous_transform(self):
-        a = self.link_parameters.a
-        alpha = self.link_parameters.alpha
-        d = self.link_parameters.d
-        theta = self.link_parameters.theta
-
-        self.homogeneous_transform = np.array([
-            [m.cos(theta), -m.sin(theta), 0, a],
-            [m.sin(theta) * m.cos(alpha), m.cos(theta) * m.cos(alpha), -m.sin(alpha), -m.sin(alpha) * d],
-            [m.sin(theta) * m.sin(alpha), m.cos(theta) * m.sin(alpha), m.cos(alpha), m.cos(alpha) * d],
-            [0, 0, 0, 1]
-        ])
-
-    def get_homogeneous_transform(self):
-        return self.homogeneous_transform
-
-    def __str__(self):
-        return self.homogeneous_transform
-
-
-# Link Parameters class - keeps track of link parameters and updates the joint variable with the newest data
-# This class should only be used by Link class
-class LinkParameters:
-    def __init__(self, a, alpha, d, theta):
-        self.a = a
-        self.alpha = alpha
-        self.d = d
-        self.theta = theta
-
-        self.link_parameters = np.array([self.a, self.alpha, self.d, self.theta])
-
-    def __str__(self):
-        return "Link Parameters" + "\n" + self.link_parameters.__str__()
-
-
-class LinkList:
-    def __init__(self):
-        self.base_link = Link(LeArmConstants.LINK_PARAMETERS[0][:4], LeArmConstants.LINK_PARAMETERS[0][4])
-        self.elbow_1_link = Link(LeArmConstants.LINK_PARAMETERS[1][:4], LeArmConstants.LINK_PARAMETERS[1][4])
-        self.elbow_2_link = Link(LeArmConstants.LINK_PARAMETERS[2][:4], LeArmConstants.LINK_PARAMETERS[2][4])
-        self.elbow_3_link = Link(LeArmConstants.LINK_PARAMETERS[3][:4], LeArmConstants.LINK_PARAMETERS[3][4])
-        self.wrist_link = Link(LeArmConstants.LINK_PARAMETERS[4][:4], LeArmConstants.LINK_PARAMETERS[4][4])
-
-        self.list = [self.base_link, self.elbow_1_link, self.elbow_2_link, self.elbow_3_link, self.wrist_link]
-        self.list_reversed = [self.wrist_link, self.elbow_3_link, self.elbow_2_link, self.elbow_1_link, self.base_link]
-
-    def get_list_reversed(self):
-        return self.list_reversed
-
-    def update_joint_revolute_variables(self, values: list):
-        self.base_link.link_parameters.theta = values[0]
-        self.elbow_1_link.link_parameters.theta = values[1]
-        self.elbow_2_link.link_parameters.theta = values[2]
-        self.elbow_3_link.link_parameters.theta = values[3]
-        self.wrist_link.link_parameters.theta = values[4]
-
-
-def get_forward_kinematics(link_list: LinkList):
-    base_to_wrist_frame_transformation = np.identity(4)
-
-    for link in link_list.get_list_reversed():
-        base_to_wrist_frame_transformation = np.matmul(link.get_homogeneous_transform(),
-                                                       base_to_wrist_frame_transformation)
-    return base_to_wrist_frame_transformation
-
-
-class ArmSetpoint:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-        self.z = 0
-        self.pitch = 0
-        self.roll = 0
-
-        self.theta1 = m.radians(LeArmConstants.SHOULDER_VERTICAL)
-        self.theta2 = m.radians(LeArmConstants.ELBOW1_VERTICAL)
-        self.theta3 = m.radians(LeArmConstants.ELBOW2_VERTICAL)
-        self.theta4 = m.radians(LeArmConstants.ELBOW3_VERTICAL)
-        self.theta5 = m.radians(LeArmConstants.WRIST_VERTICAL)
-        self.theta6 = m.radians(LeArmConstants.GripperState.MIDDLE.value)
-
-    def update_setpoints(self, setpoint_as_list):
-        self.x = setpoint_as_list[0]
-        self.y = setpoint_as_list[1]
-        self.z = setpoint_as_list[2]
-        self.pitch = setpoint_as_list[3]
-        self.roll = setpoint_as_list[4]
-
-        self.theta1 = setpoint_as_list[5]
-        self.theta2 = setpoint_as_list[6]
-        self.theta3 = setpoint_as_list[7]
-        self.theta4 = setpoint_as_list[8]
-        self.theta5 = setpoint_as_list[9]
-        self.theta6 = setpoint_as_list[10]
-
-    def get_x_z_length(self):
-        return m.sqrt(square(self.x) + square(self.z))
-
-    def get_setpoint_as_list(self):
-        return [self.x, self.y, self.z, self.pitch, self.roll, self.theta1, self.theta2, self.theta3, self.theta4,
-                self.theta5, self.theta6]
-
-    def get_raw_theta_list_radians(self):
-        """
-        raw means that angles have not been modified to represent real world servo setpoints
-        """
-        return [self.theta1, self.theta2, self.theta3, self.theta4, self.theta5, self.theta6]
-
-    def get_servo_setpoint_list(self):
-        """
-        Returns servo angles from raw radians list
-
-        (
-                [LeArmConstants.SHOULDER_VERTICAL, (90 + LeArmConstants.ELBOW1_VERTICAL) -
-                 m.degrees(planar_3_axis_solution[1]), LeArmConstants.ELBOW2_VERTICAL +
-                 m.degrees(planar_3_axis_solution[2]), LeArmConstants.ELBOW3_VERTICAL
-                 + m.degrees(planar_3_axis_solution[3]), LeArmConstants.GripperState.MIDDLE.value],
-                [m.radians(LeArmConstants.SHOULDER_VERTICAL), planar_3_axis_solution[1], planar_3_axis_solution[2],
-                 planar_3_axis_solution[3], m.radians(LeArmConstants.WRIST_VERTICAL)])
-        """
-        return [m.degrees(self.theta1),
-                m.degrees(self.theta2), LeArmConstants.ELBOW2_VERTICAL -
-                m.degrees(self.theta3), LeArmConstants.ELBOW3_VERTICAL
-                - m.degrees(self.theta4), m.degrees(self.theta5), m.degrees(self.theta6)]
-
-    def __str__(self):
-        return self.get_setpoint_as_list().__str__()
-
-
 class ArmKinematics:
     def __init__(self, current_setpoint: ArmSetpoint, past_setpoint: ArmSetpoint):
         # Should be set to default position, i.e. vertical
@@ -272,50 +271,6 @@ class ArmKinematics:
     def move_past_to_current_setpoint(self):
         self.current_setpoint.update_setpoints(self.past_setpoint.get_setpoint_as_list())
 
-    def compare(self, sol1, sol2):
-        """
-        Check if solutions are achievable
-        if both are, compares and returns the shorter path
-
-        Should also do something if both not achievable
-        @param sol1:
-        @param sol2:
-        @return:
-        """
-        sol1_achievable = check_servo_setpoint_list_achievable(sol1)
-        sol2_achievable = check_servo_setpoint_list_achievable(sol2)
-
-        print(f"""sol1: {sol1}
-sol1_achievable: {sol1_achievable}
-sol2: {sol2}
-sol2_achievable: {sol2_achievable}""")
-
-        if sol1_achievable and sol2_achievable:
-            travel1 = self.get_travel(sol1)
-            travel2 = self.get_travel(sol2)
-
-            if travel1 > travel2:
-                return sol2
-            return sol1
-        elif sol1_achievable:
-            return sol1
-        elif sol2_achievable:
-            return sol2
-
-        # Catch all for now
-        return [None, None, None]
-
-    def get_travel(self, solution):
-        """
-        Computes the travel for 3-axis planar angles due to the servos' limited range of motion
-        @return:
-        """
-        travel = 0
-        travel += m.fabs(solution[0] - self.past_setpoint.theta2)
-        travel += m.fabs(solution[1] - self.past_setpoint.theta3)
-        travel += m.fabs(solution[2] - self.past_setpoint.theta4)
-        return travel
-
     def solve(self, x, y, z, pitch, roll, gripper_setpoint, command_type: LeArmConstants.CommandType):
         """
         Takes in the angles in radians and returns the angles in degrees for the servos and raw angles in radians for
@@ -330,7 +285,6 @@ sol2_achievable: {sol2_achievable}""")
         :param command_type
         :return:
         """
-
         self.move_current_to_past_setpoint()
 
         # All values will either be updated or kept the same
@@ -341,64 +295,21 @@ sol2_achievable: {sol2_achievable}""")
             # Base Rotation
             self.solve_for_tempX()
 
-            self.solve_for_base()
-            self.clamp_wrist_angle()
+            solve_for_base()
+            clamp_wrist_angle()
             self.current_setpoint.theta6 = m.radians(gripper_setpoint)
 
             if command_type.value == LeArmConstants.CommandType.FIXED.value:
-                self.check_update_current_setpoint_angles(self.solve_3_axis_planar())
-            else:
-                self.recursive_solve(x, y, z, pitch, command_type)
-
-    def recursive_solve(self, x, y, z, pitch, command_type: LeArmConstants.CommandType):
-        """
-        Use a for loop to check until a condition, break loop if it finds a solution
-        """
-        if command_type.value == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
-            pass
-        elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
-            self.remove_gripper_length()
-            base_tempx_no_gripper = self.temp_X
-            base_z_no_gripper = self.current_setpoint.z
-            self.clamp_tempx_z_vector()
-            self.add_gripper_length()
-            base_tempx = self.temp_X
-            base_z = self.current_setpoint.z
-            change_tempx = self.temp_X / self.get_tempx_z_length()
-            change_z = self.current_setpoint.z / self.get_tempx_z_length()
-
-            print(f"""Base_tempx : {base_tempx}
-Base_z : {base_z}
-change_tempx : {change_tempx}
-change_z : {change_z}""")
-
-            for i in range(int(LeArmConstants.MAX_EXTENSION - self.get_tempx_z_length())):
-                # Now, using i as a multiplier, remove the unit vector times i
-                # until a solution is found or i goes out of range
-                self.update_tempx_z_recursive(i, change_tempx, change_z, base_tempx, base_z)
-
-                # print(f"{i}: solved using tempx : {self.temp_X} and z : {self.current_setpoint.z}")
-                solution = self.solve_3_axis_planar()
-                if solution[0] is not None:
-                    self.check_update_current_setpoint_angles(solution)
-                    break
-            for i in range(int(self.get_tempx_z_length() - LeArmConstants.MIN_EXTENSION)):
-                self.update_tempx_z_recursive(-i, change_tempx, change_z, base_tempx, base_z)
-
-                # print(f"{-i}: solved using tempx : {self.temp_X} and z : {self.current_setpoint.z}")
-                solution = self.solve_3_axis_planar()
-                if solution[0] is not None:
-                    self.check_update_current_setpoint_angles(solution)
-                    break
+                self.check_update_current_setpoint_angles(solve_3_axis_planar())
+            elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
+                pass
+            elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
+                pass
 
     def solve_for_tempX(self):
         self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
         if self.current_setpoint.x < 0:
             self.temp_X = -self.temp_X
-
-    def update_tempx_z_recursive(self, i, change_tempx, change_z, base_tempx, base_z):
-        self.temp_X = base_tempx + i * change_tempx
-        self.current_setpoint.z = base_z + i * change_z
 
     def check_new_point(self, x=None, y=None, z=None, pitch=None, roll=None):
         new_point = False
@@ -455,73 +366,3 @@ change_z : {change_z}""")
         # print("Gripper Vector Length:" + gripper_length.__str__())
         self.temp_X = self.temp_X + gripper_v_x
         self.current_setpoint.z = self.current_setpoint.z + gripper_v_z
-
-    def solve_3_axis_planar(self):
-        """First remove the gripper vector from the arm position vector
-        It's important that theta6 is updated to its new desired value before it can be removed from the total vector
-           in order to ensure the proper amount has been removed
-        Need to add shift for elbow1 being off center
-        """
-        print("Inputted Coordinates:" + self.current_setpoint.__str__())
-        print("Theta6: " + str(m.radians(self.current_setpoint.theta6)))
-        self.remove_gripper_length()
-
-        print("Gripper Removed Coordinates:" + self.current_setpoint.__str__())
-
-        # Shift vector to account for elbow1 displacement from center
-        self.temp_X = self.temp_X + LeArmConstants.X_SHIFT
-
-        # Return null when the vector with the gripper removed is not achievable
-        if not self.is_valid_x_z_coordinate():
-            print("OUTSIDE REACHABLE RANGE")
-            return [None, None, None]
-
-        theta_3 = -(m.acos((square(self.get_tempx_z_length()) - square(LeArmConstants.LINK2_LENGTH) - square(
-            LeArmConstants.LINK3_LENGTH)) /
-                           (2 * LeArmConstants.LINK2_LENGTH * LeArmConstants.LINK3_LENGTH)))
-        theta_3_N = -theta_3
-
-        beta = m.atan2(self.current_setpoint.z, self.temp_X)
-        psi = m.acos((square(self.get_tempx_z_length()) + square(LeArmConstants.LINK2_LENGTH) - square(
-            LeArmConstants.LINK3_LENGTH)) /
-                     (2 * LeArmConstants.LINK2_LENGTH * self.get_tempx_z_length()))
-
-        theta_2 = beta + psi
-        theta_2_N = beta - psi
-
-        theta_4 = self.current_setpoint.pitch - theta_2 - theta_3
-        theta_4_N = self.current_setpoint.pitch - theta_2_N - theta_3_N
-
-        """print(f"psi: {psi}\n"
-              f"beta: {beta}\n"
-              f"length xz: {self.get_tempx_z_length()}\n"
-              f"square L2: {square(LeArmConstants.LINK2_LENGTH)}\n"
-              f"square L3: {square(LeArmConstants.LINK3_LENGTH)}\n"
-              f"Denominator: {2 * LeArmConstants.LINK2_LENGTH * self.get_tempx_z_length()}")
-
-        print(f"theta2: {theta_2}\n"
-              f"theta3: {theta_3}\n"
-              f"theta4: {theta_4}\n"
-              f"theta2n: {theta_2_N}\n"
-              f"theta3n: {theta_3_N}\n"
-              f"theta4n: {theta_4_N}")"""
-
-        return self.compare([theta_2, theta_3, theta_4],
-                            [theta_2_N, theta_3_N, theta_4_N])
-
-    def solve_for_base(self):
-        print(f"TESTFOR BASE ANGLE x:{self.temp_X}, y:{self.current_setpoint.y}")
-        angle = 0
-        if self.current_setpoint.x == 0 and self.current_setpoint.y != 0:
-            angle = m.pi / 2
-        elif self.current_setpoint.x != 0 and self.current_setpoint.y == 0:
-            angle = 0
-        elif self.current_setpoint.x != 0 and self.current_setpoint.y != 0:
-            angle = m.atan(self.current_setpoint.y / self.current_setpoint.x)
-
-        self.current_setpoint.theta1 = angle + m.pi / 2
-
-    def clamp_wrist_angle(self):
-        self.current_setpoint.theta5 = clamp(self.current_setpoint.roll, 0, m.pi)
-        print(f"""theta5: {self.current_setpoint.theta5}
-roll: {self.current_setpoint.roll}""")
