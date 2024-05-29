@@ -109,6 +109,7 @@ It's important that theta6 is updated to its new desired value before it can be 
 Need to add shift for elbow1 being off center
 """
     xz_length = get_2D_vector_length(x, z)
+
     theta_3 = -(m.acos((square(xz_length) - square(LeArmConstants.LINK2_LENGTH) - square(
         LeArmConstants.LINK3_LENGTH)) /
                        (2 * LeArmConstants.LINK2_LENGTH * LeArmConstants.LINK3_LENGTH)))
@@ -301,10 +302,21 @@ class ArmKinematics:
             self.current_setpoint.theta5 = clamp_wrist_angle(self.current_setpoint.roll)
             self.current_setpoint.theta6 = m.radians(gripper_setpoint)
 
+            x3, z3 = self.get_coordinates_for_3_axis()
+
+            print(f"""
+            Tempx : {x3}
+            z : {z3}
+            pitch : {self.current_setpoint.pitch}""")
+
             if command_type.value == LeArmConstants.CommandType.FIXED.value:
-                self.check_update_current_setpoint_angles(solve_3_axis_planar(self.temp_X, self.current_setpoint.z,
-                                                                              self.current_setpoint.pitch,
-                                                                              self.past_setpoint.get_3_axis_list()))
+                if not self.is_valid_x_z_coordinate():
+                    print("OUTSIDE REACHABLE RANGE")
+                    self.move_past_to_current_setpoint()
+                else:
+                    self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
+                                                                                  self.current_setpoint.pitch,
+                                                                                  self.past_setpoint.get_3_axis_list()))
             elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
                 pass
             elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
@@ -351,22 +363,11 @@ class ArmKinematics:
             self.move_past_to_current_setpoint()
             print("POINT NOT REACHABLE")
 
-    def remove_gripper_length(self):
+    def get_coordinates_for_3_axis(self):
         gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
                           LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
 
         gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
         # print("Gripper Vector Length:" + gripper_length.__str__())
-        self.temp_X = self.temp_X - gripper_v_x
-        self.current_setpoint.z = self.current_setpoint.z - gripper_v_z
-
-    def add_gripper_length(self):
-        gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
-                          LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
-
-        gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
-        gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
-        # print("Gripper Vector Length:" + gripper_length.__str__())
-        self.temp_X = self.temp_X + gripper_v_x
-        self.current_setpoint.z = self.current_setpoint.z + gripper_v_z
+        return [self.temp_X - gripper_v_x + LeArmConstants.X_SHIFT, self.current_setpoint.z - gripper_v_z]
