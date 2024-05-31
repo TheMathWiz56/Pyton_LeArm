@@ -36,7 +36,7 @@ class Command:
 
     def initialize_arm(self):
         self.le_arm.go_to(LeArmConstants.GripperState.MIDDLE.value, x=0, z=320, pitch=m.pi / 2,
-                          command_type=LeArmConstants.CommandType.FIXED)
+                          command_type=LeArmConstants.CommandType.FIXED.value)
 
     def go_to(self):
         print(f"""MAX and MIN extensions (mm): with gripper removed:
