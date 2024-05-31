@@ -335,6 +335,12 @@ class ArmKinematics:
                     else:
                         print("NO SOLUTION")
                         self.move_past_to_current_setpoint()
+                    x3, z3 = self.get_coordinates_for_3_axis()
+                    print(f"""
+                                Tempx : {x3}
+                                z : {z3}
+                                pitch : {self.current_setpoint.pitch}
+                                command type: {command_type}""")
                     self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
                                                                                   self.current_setpoint.pitch,
                                                                                   self.past_setpoint.get_3_axis_list()))
