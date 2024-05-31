@@ -220,7 +220,7 @@ class Arm:
         """
         self.kit.servo[pin].angle = value
 
-    def go_to(self, gripper_setpoint, command_type, x=0, y=0, z=0, pitch=m.pi/2, roll=m.pi/2):
+    def go_to(self, gripper_setpoint, command_type=0, x=0, y=0, z=0, pitch=m.pi/2, roll=m.pi/2):
         """
         :param gripper_setpoint:
         :param command_type
@@ -311,7 +311,8 @@ class ArmKinematics:
             print(f"""
             Tempx : {x3}
             z : {z3}
-            pitch : {self.current_setpoint.pitch}""")
+            pitch : {self.current_setpoint.pitch}
+            command type: {command_type}""")
 
             if command_type == LeArmConstants.CommandType.FIXED.value:
                 if not is_valid_x_z_coordinate(x3, z3):
