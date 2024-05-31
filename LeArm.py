@@ -220,7 +220,7 @@ class Arm:
         """
         self.kit.servo[pin].angle = value
 
-    def go_to(self, gripper_setpoint, command_type: LeArmConstants.CommandType, x=0, y=0, z=0, pitch=90, roll=90):
+    def go_to(self, gripper_setpoint, command_type, x=0, y=0, z=0, pitch=90, roll=90):
         """
         :param gripper_setpoint:
         :param command_type
@@ -278,7 +278,7 @@ class ArmKinematics:
     def move_past_to_current_setpoint(self):
         self.current_setpoint.update_setpoints(self.past_setpoint.get_setpoint_as_list())
 
-    def solve(self, x, y, z, pitch, roll, gripper_setpoint, command_type: LeArmConstants.CommandType):
+    def solve(self, x, y, z, pitch, roll, gripper_setpoint, command_type):
         """
         Takes in the angles in radians and returns the angles in degrees for the servos and raw angles in radians for
         storage
