@@ -220,7 +220,7 @@ class Arm:
         """
         self.kit.servo[pin].angle = value
 
-    def go_to(self, gripper_setpoint, command_type=0, x=0, y=0, z=0, pitch=m.pi/2, roll=m.pi/2):
+    def go_to(self, gripper_setpoint, command_type=0, x=0, y=0, z=0, pitch=m.pi / 2, roll=m.pi / 2):
         """
         :param gripper_setpoint:
         :param command_type
@@ -325,15 +325,15 @@ class ArmKinematics:
             elif command_type == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
                 pass
             elif command_type == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
-                solution = [None, None, None]
                 if is_valid_x_z_coordinate(x3, z3):
-                    solution = solve_3_axis_planar(x3, z3, self.current_setpoint.pitch,
-                                                   self.past_setpoint.get_3_axis_list())
-                if solution[0] is None:
+                    self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
+                                                                                  self.current_setpoint.pitch,
+                                                                                  self.past_setpoint.get_3_axis_list()))
+                else:
                     if self.get_tempx_z_length() > LeArmConstants.MAX_EXTENSION:
-                        self.solve_adjustable_point_vector(LeArmConstants.MAX_EXTENSION - 1)
+                        self.solve_adjustable_point_vector(LeArmConstants.MAX_EXTENSION)
                     elif self.get_tempx_z_length() < LeArmConstants.MIN_EXTENSION:
-                        self.solve_adjustable_point_vector(LeArmConstants.MIN_EXTENSION + 1)
+                        self.solve_adjustable_point_vector(LeArmConstants.MIN_EXTENSION)
                     else:
                         print("NO SOLUTION")
                         self.move_past_to_current_setpoint()
@@ -348,11 +348,12 @@ class ArmKinematics:
                                                                                   self.past_setpoint.get_3_axis_list()))
 
     def update_tempX(self):
-        self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y) + LeArmConstants.X_SHIFT
+        self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
         if self.current_setpoint.x < 0:
             self.temp_X = -self.temp_X
         elif self.current_setpoint.x == 0 and self.current_setpoint.y < 0:
             self.temp_X = -self.temp_X
+        self.temp_X = self.temp_X + LeArmConstants.X_SHIFT
 
     def check_new_point(self, x=None, y=None, z=None, pitch=None, roll=None):
         new_point = False
@@ -399,13 +400,6 @@ class ArmKinematics:
         # print("Gripper Vector Length:" + gripper_length.__str__())
         return [self.temp_X - gripper_v_x, self.current_setpoint.z - gripper_v_z]
 
-    def get_removed_gripper_coordinates(self, x, z):
-        gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
-                          LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
-        gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
-        gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
-        return [x - gripper_v_x, z - gripper_v_z]
-
     def get_added_gripper_coordinates(self, x, z):
         gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
                           LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
@@ -421,7 +415,7 @@ class ArmKinematics:
         Updates temp_X and z to new values
         @param scaler
         """
-        [x, z] = get_unit_vector(self.get_removed_gripper_coordinates(self.temp_X, self.current_setpoint.z))
+        [x, z] = get_unit_vector(self.get_coordinates_for_3_axis())
         [self.temp_X, self.current_setpoint.z] = self.get_added_gripper_coordinates(x * scaler, z * scaler)
         self.update_xy_from_temp_X()
 
