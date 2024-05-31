@@ -161,6 +161,10 @@ def get_forward_kinematics(link_list: LinkList):
     return base_to_wrist_frame_transformation
 
 
+def get_unit_vector(v):
+    return [v[0] / get_2D_vector_length(v[0], v[1]), v[1] / get_2D_vector_length(v[0], v[1])]
+
+
 # ____________________________________________________________________________________________________________________
 
 # Arm class - generates base to end-effector transform, handles kinematic operations, handles servo periodic??? update
@@ -320,11 +324,25 @@ class ArmKinematics:
             elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
                 pass
             elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
-                pass
+                solution = solve_3_axis_planar(x3, z3, self.current_setpoint.pitch,
+                                               self.past_setpoint.get_3_axis_list())
+                if solution[0] is None:
+                    if self.get_tempx_z_length() > LeArmConstants.MAX_EXTENSION:
+                        self.solve_adjustable_point_vector(LeArmConstants.MAX_EXTENSION)
+                    elif self.get_tempx_z_length() < LeArmConstants.MIN_EXTENSION:
+                        self.solve_adjustable_point_vector(LeArmConstants.MIN_EXTENSION)
+                    else:
+                        print("NO SOLUTION")
+                        self.move_past_to_current_setpoint()
+                    self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
+                                                                                  self.current_setpoint.pitch,
+                                                                                  self.past_setpoint.get_3_axis_list()))
 
     def update_tempX(self):
         self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
         if self.current_setpoint.x < 0:
+            self.temp_X = -self.temp_X
+        elif self.current_setpoint.x == 0 and self.current_setpoint.y < 0:
             self.temp_X = -self.temp_X
 
     def check_new_point(self, x=None, y=None, z=None, pitch=None, roll=None):
@@ -371,3 +389,35 @@ class ArmKinematics:
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
         # print("Gripper Vector Length:" + gripper_length.__str__())
         return [self.temp_X - gripper_v_x + LeArmConstants.X_SHIFT, self.current_setpoint.z - gripper_v_z]
+
+    def get_removed_gripper_coordinates(self, x, z):
+        gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
+                          LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
+        gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
+        gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
+        return [x - gripper_v_x, z - gripper_v_z]
+
+    def get_added_gripper_coordinates(self, x, z):
+        gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
+                          LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
+        gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
+        gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
+        return [x + gripper_v_x, z + gripper_v_z]
+
+    def solve_adjustable_point_vector(self, scaler):
+        """
+        Removes the gripper component from the <temp_X, z> vector
+        Scales to scaler extension
+        Re-adds gripper vector
+        Updates temp_X and z to new values
+        @param scaler
+        """
+        [x, z] = get_unit_vector(self.get_removed_gripper_coordinates(self.temp_X + LeArmConstants.X_SHIFT,
+                                                                      self.current_setpoint.z))
+        [self.temp_X, self.current_setpoint.z] = self.get_added_gripper_coordinates(x * scaler, z * scaler)
+        self.update_xy_from_temp_X()
+
+    def update_xy_from_temp_X(self):
+        theta = m.atan2(self.current_setpoint.y, self.current_setpoint.x)
+        self.current_setpoint.y = (self.temp_X - LeArmConstants.X_SHIFT) * m.sin(theta)
+        self.current_setpoint.x = (self.temp_X - LeArmConstants.X_SHIFT) * m.cos(theta)
