@@ -313,7 +313,7 @@ class ArmKinematics:
             z : {z3}
             pitch : {self.current_setpoint.pitch}""")
 
-            if command_type.value == LeArmConstants.CommandType.FIXED.value:
+            if command_type == LeArmConstants.CommandType.FIXED.value:
                 if not is_valid_x_z_coordinate(x3, z3):
                     print("OUTSIDE REACHABLE RANGE")
                     self.move_past_to_current_setpoint()
@@ -321,9 +321,9 @@ class ArmKinematics:
                     self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
                                                                                   self.current_setpoint.pitch,
                                                                                   self.past_setpoint.get_3_axis_list()))
-            elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
+            elif command_type == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
                 pass
-            elif command_type.value == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
+            elif command_type == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
                 solution = solve_3_axis_planar(x3, z3, self.current_setpoint.pitch,
                                                self.past_setpoint.get_3_axis_list())
                 if solution[0] is None:
