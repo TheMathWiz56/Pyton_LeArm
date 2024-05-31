@@ -77,9 +77,9 @@ def main():
                 elif user_input_int == 4:
                     command_controller.go_to()
                 else:
-                    print("Invalid Input")
+                    print("Invalid Input: Not a Command")
             except ValueError:
-                print("Invalid Input")
+                print("Invalid Input: Value Error")
         except KeyboardInterrupt:
             print("Exiting")
             is_running = False

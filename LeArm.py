@@ -220,7 +220,7 @@ class Arm:
         """
         self.kit.servo[pin].angle = value
 
-    def go_to(self, gripper_setpoint, command_type, x=0, y=0, z=0, pitch=90, roll=90):
+    def go_to(self, gripper_setpoint, command_type, x=0, y=0, z=0, pitch=m.pi/2, roll=m.pi/2):
         """
         :param gripper_setpoint:
         :param command_type
@@ -289,7 +289,7 @@ class ArmKinematics:
         :param pitch:
         :param roll:
         :param gripper_setpoint:
-        :param command_type
+        :param command_type:
         :return:
         """
         self.move_current_to_past_setpoint()
@@ -339,7 +339,7 @@ class ArmKinematics:
                                                                                   self.past_setpoint.get_3_axis_list()))
 
     def update_tempX(self):
-        self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
+        self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y) + LeArmConstants.X_SHIFT
         if self.current_setpoint.x < 0:
             self.temp_X = -self.temp_X
         elif self.current_setpoint.x == 0 and self.current_setpoint.y < 0:
@@ -388,7 +388,7 @@ class ArmKinematics:
         gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
         # print("Gripper Vector Length:" + gripper_length.__str__())
-        return [self.temp_X - gripper_v_x + LeArmConstants.X_SHIFT, self.current_setpoint.z - gripper_v_z]
+        return [self.temp_X - gripper_v_x, self.current_setpoint.z - gripper_v_z]
 
     def get_removed_gripper_coordinates(self, x, z):
         gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
@@ -412,8 +412,7 @@ class ArmKinematics:
         Updates temp_X and z to new values
         @param scaler
         """
-        [x, z] = get_unit_vector(self.get_removed_gripper_coordinates(self.temp_X + LeArmConstants.X_SHIFT,
-                                                                      self.current_setpoint.z))
+        [x, z] = get_unit_vector(self.get_removed_gripper_coordinates(self.temp_X, self.current_setpoint.z))
         [self.temp_X, self.current_setpoint.z] = self.get_added_gripper_coordinates(x * scaler, z * scaler)
         self.update_xy_from_temp_X()
 
