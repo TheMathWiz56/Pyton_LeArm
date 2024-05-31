@@ -325,8 +325,10 @@ class ArmKinematics:
             elif command_type == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
                 pass
             elif command_type == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
-                solution = solve_3_axis_planar(x3, z3, self.current_setpoint.pitch,
-                                               self.past_setpoint.get_3_axis_list())
+                solution = [None, None, None]
+                if is_valid_x_z_coordinate(x3, z3):
+                    solution = solve_3_axis_planar(x3, z3, self.current_setpoint.pitch,
+                                                   self.past_setpoint.get_3_axis_list())
                 if solution[0] is None:
                     if self.get_tempx_z_length() > LeArmConstants.MAX_EXTENSION:
                         self.solve_adjustable_point_vector(LeArmConstants.MAX_EXTENSION - 1)
