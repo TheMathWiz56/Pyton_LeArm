@@ -348,9 +348,9 @@ class ArmKinematics:
                                                                                   self.past_setpoint.get_3_axis_list()))
                 else:
                     if self.get_tempx_z_length() > LeArmConstants.MAX_EXTENSION:
-                        self.solve_adjustable_point_vector(LeArmConstants.MAX_EXTENSION)
+                        self.solve_adjustable_point_vector(LeArmConstants.MAX_EXTENSION-1)
                     elif self.get_tempx_z_length() < LeArmConstants.MIN_EXTENSION:
-                        self.solve_adjustable_point_vector(LeArmConstants.MIN_EXTENSION)
+                        self.solve_adjustable_point_vector(LeArmConstants.MIN_EXTENSION+1)
                     else:
                         print("NO SOLUTION")
                         self.move_past_to_current_setpoint()
