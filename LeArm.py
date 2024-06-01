@@ -165,6 +165,23 @@ def get_unit_vector(v):
     return [v[0] / get_2D_vector_length(v[0], v[1]), v[1] / get_2D_vector_length(v[0], v[1])]
 
 
+def compare_points(reference, point_list):
+    shortest_distance = get_distance_between_points(reference, point_list[0])
+    index = 0
+    for i in range(1, len(point_list), 1):
+        if get_distance_between_points(reference, point_list[i]) < shortest_distance:
+            index = i
+            shortest_distance = get_distance_between_points(reference, point_list[i])
+    return point_list[index]
+
+
+def get_distance_between_points(point1, point2):
+    distance = 0
+    for i in range(len(point1)):
+        distance += distance + square(point1[i] - point2[i])
+    return distance
+
+
 # ____________________________________________________________________________________________________________________
 
 # Arm class - generates base to end-effector transform, handles kinematic operations, handles servo periodic??? update
@@ -407,7 +424,7 @@ class ArmKinematics:
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
         return [x + gripper_v_x, z + gripper_v_z]
 
-    def solve_adjustable_point_vector(self, scaler):
+    def solve_adjustable_point_vector(self, radius):
         """
         Removes the gripper component from the <temp_X, z> vector
         Scales to scaler extension
@@ -415,11 +432,19 @@ class ArmKinematics:
         Updates temp_X and z to new values
         @param scaler
         """
-        [x, z] = get_unit_vector(self.get_coordinates_for_3_axis())
-        [self.temp_X, self.current_setpoint.z] = self.get_added_gripper_coordinates(x * scaler, z * scaler)
-        self.update_xy_from_temp_X()
 
-    def update_xy_from_temp_X(self):
+        slope = self.current_setpoint.z / -(self.temp_X - LeArmConstants.X_SHIFT)
+        x1 = m.sqrt(square(radius) / (1 + square(slope)))
+        x2 = -x1
+        z1 = m.sqrt(square(radius) / square(x1))
+        z2 = -z1
+        closest_point = compare_points([self.temp_X - LeArmConstants.X_SHIFT, self.current_setpoint.z],
+                                       [[x1, z1], [x2, z2]])
+
+        self.update_xy(closest_point[0])
+        self.current_setpoint.z = closest_point[1]
+
+    def update_xy(self, value):
         theta = m.atan2(self.current_setpoint.y, self.current_setpoint.x)
-        self.current_setpoint.y = (self.temp_X - LeArmConstants.X_SHIFT) * m.sin(theta)
-        self.current_setpoint.x = (self.temp_X - LeArmConstants.X_SHIFT) * m.cos(theta)
+        self.current_setpoint.y = value * m.sin(theta)
+        self.current_setpoint.x = value * m.cos(theta)

@@ -31,9 +31,6 @@ class ArmSetpoint:
         self.theta5 = setpoint_as_list[9]
         self.theta6 = setpoint_as_list[10]
 
-    def get_x_z_length(self):
-        return get_2D_vector_length(self.x, self.z)
-
     def get_setpoint_as_list(self):
         return [self.x, self.y, self.z, self.pitch, self.roll, self.theta1, self.theta2, self.theta3, self.theta4,
                 self.theta5, self.theta6]
