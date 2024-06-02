@@ -355,6 +355,7 @@ class ArmKinematics:
                         print("NO SOLUTION")
                         self.move_past_to_current_setpoint()
 
+                    self.update_base_3_axis()
                     x3, z3 = self.get_coordinates_for_3_axis()
                     print(f"""
                                 base_3_axis : {x3}
@@ -457,7 +458,7 @@ class ArmKinematics:
         else:
             x1 = 0
             x2 = 0
-            z1 = m.sqrt(square(radius) - 100)
+            z1 = m.sqrt(square(radius) - square(Xs))
             z2 = -z1
 
         print(f"""
