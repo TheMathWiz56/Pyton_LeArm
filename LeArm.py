@@ -472,10 +472,14 @@ class ArmKinematics:
         print(f"Closest point before gripper added : {closest_point}")
         closest_point = self.get_added_gripper_coordinates([-closest_point[0], closest_point[1]])
         print(closest_point)
-        self.update_xy(-closest_point[0])
+        self.update_xy(closest_point[0])
         self.current_setpoint.z = closest_point[1]
 
     def update_xy(self, value):
+        value = m.fabs(value)
         theta = m.atan2(self.current_setpoint.y, self.current_setpoint.x)
         self.current_setpoint.y = value * m.sin(theta)
         self.current_setpoint.x = value * m.cos(theta)
+        print(f"""
+        new x : {self.current_setpoint.x}
+        new y : {self.current_setpoint.y}""")
