@@ -366,7 +366,7 @@ class ArmKinematics:
                                                                                       self.current_setpoint.pitch,
                                                                                       self.past_setpoint.get_3_axis_list()))
                     else:
-                        print("FOUND INCORRECT SOLUTION")
+                        print("UNREACHABLE SOLUTION")
                         self.move_past_to_current_setpoint()
 
     def update_base_3_axis(self):
@@ -438,23 +438,33 @@ class ArmKinematics:
         Updates base_3_axis and z to new values
         @param radius
         """
-        z_no_gripper, x_no_gripper = self.get_coordinates_for_3_axis()
+        x_no_gripper, z_no_gripper = self.get_coordinates_for_3_axis()
         base_5_axis = -(x_no_gripper - LeArmConstants.X_SHIFT)
-        print(f"""
-        base_5_axis : {base_5_axis}
-        base_3_axis : {self.base_3_axis}""")
 
         slope = z_no_gripper / base_5_axis
+        Xs = LeArmConstants.X_SHIFT
+
+        print(f"""
+        base_5_axis : {base_5_axis}
+        base_3_axis : {self.base_3_axis}
+        slope : {slope}""")
+
         if slope != 0:
-            x1 = m.sqrt(square(radius) / (1 + square(slope)))
-            x2 = -x1
-            z1 = m.sqrt(square(radius) / square(x1))
-            z2 = -z1
+            x1 = ((2 * Xs) + m.sqrt(square(2 * Xs) - (4 * (square(slope) + 1) * -(square(radius) - square(Xs)))))/(2 * (square(slope) + 1))
+            x2 = ((2 * Xs) - m.sqrt(square(2 * Xs) - (4 * (square(slope) + 1) * -(square(radius) - square(Xs)))))/(2 * (square(slope) + 1))
+            z1 = (slope / m.fabs(slope)) * m.sqrt(square(radius) - square(x1 - Xs))
+            z2 = -(slope / m.fabs(slope)) * m.sqrt(square(radius) - square(x2 - Xs))
         else:
             x1 = 0
             x2 = 0
-            z1 = radius
-            z2 = -radius
+            z1 = m.sqrt(square(radius) - 100)
+            z2 = -z1
+
+        print(f"""
+        x1 : {x1}
+        z1 : {z1}
+        x2 : {x2}
+        z2 : {z2}""")
 
         closest_point = compare_points([base_5_axis, z_no_gripper],
                                        [[x1, z1], [x2, z2]])
