@@ -137,10 +137,10 @@ Need to add shift for elbow1 being off center
 
     """print(f"psi: {psi}\n"
               f"beta: {beta}\n"
-              f"length xz: {self.get_tempx_z_length()}\n"
+              f"length xz: {self.get_base_3_axis_z_length()}\n"
               f"square L2: {square(LeArmConstants.LINK2_LENGTH)}\n"
               f"square L3: {square(LeArmConstants.LINK3_LENGTH)}\n"
-              f"Denominator: {2 * LeArmConstants.LINK2_LENGTH * self.get_tempx_z_length()}")
+              f"Denominator: {2 * LeArmConstants.LINK2_LENGTH * self.get_base_3_axis_z_length()}")
 
     print(f"theta2: {theta_2}\n"
         f"theta3: {theta_3}\n"
@@ -271,22 +271,22 @@ class ArmKinematics:
         # Should be set to default position, i.e. vertical
         self.current_setpoint = current_setpoint
         self.past_setpoint = past_setpoint
-        self.temp_X = 0
+        self.base_3_axis = 0
 
     # Careful to only use after the gripper vector has been removed from the arm setpoint
-    def get_tempx_z_length(self):
-        return get_2D_vector_length(self.temp_X, self.current_setpoint.z)
+    def get_base_3_axis_z_length(self):
+        return get_2D_vector_length(self.base_3_axis, self.current_setpoint.z)
 
-    def clamp_tempx_z_vector(self):
-        if self.get_tempx_z_length() > LeArmConstants.MAX_EXTENSION:
-            scaler = LeArmConstants.MAX_EXTENSION / self.get_tempx_z_length()
-        elif self.get_tempx_z_length() < LeArmConstants.MIN_EXTENSION:
-            scaler = LeArmConstants.MIN_EXTENSION / self.get_tempx_z_length()
+    def clamp_base_3_axis_z_vector(self):
+        if self.get_base_3_axis_z_length() > LeArmConstants.MAX_EXTENSION:
+            scaler = LeArmConstants.MAX_EXTENSION / self.get_base_3_axis_z_length()
+        elif self.get_base_3_axis_z_length() < LeArmConstants.MIN_EXTENSION:
+            scaler = LeArmConstants.MIN_EXTENSION / self.get_base_3_axis_z_length()
         else:
             scaler = 1
 
-        print(f"scaler : {scaler}, length : {self.get_tempx_z_length()}")
-        self.temp_X = scaler * self.temp_X
+        print(f"scaler : {scaler}, length : {self.get_base_3_axis_z_length()}")
+        self.base_3_axis = scaler * self.base_3_axis
         self.current_setpoint.z = scaler * self.current_setpoint.z
 
     def move_current_to_past_setpoint(self):
@@ -317,7 +317,7 @@ class ArmKinematics:
 
         if new_point:
             # Base Rotation
-            self.update_tempX()
+            self.update_base_3_axis()
 
             self.current_setpoint.theta1 = solve_for_base(x, y)
             self.current_setpoint.theta5 = clamp_wrist_angle(self.current_setpoint.roll)
@@ -326,7 +326,7 @@ class ArmKinematics:
             x3, z3 = self.get_coordinates_for_3_axis()
 
             print(f"""
-            Tempx : {x3}
+            base_3_axis : {x3}
             z : {z3}
             pitch : {self.current_setpoint.pitch}
             command type: {command_type}""")
@@ -347,30 +347,35 @@ class ArmKinematics:
                                                                                   self.current_setpoint.pitch,
                                                                                   self.past_setpoint.get_3_axis_list()))
                 else:
-                    if self.get_tempx_z_length() > LeArmConstants.MAX_EXTENSION:
-                        self.solve_adjustable_point_vector(LeArmConstants.MAX_EXTENSION-1)
-                    elif self.get_tempx_z_length() < LeArmConstants.MIN_EXTENSION:
-                        self.solve_adjustable_point_vector(LeArmConstants.MIN_EXTENSION+1)
+                    if self.get_base_3_axis_z_length() > LeArmConstants.MAX_EXTENSION:
+                        self.solve_adjustable_point_vector(LeArmConstants.MAX_EXTENSION - 1)
+                    elif self.get_base_3_axis_z_length() < LeArmConstants.MIN_EXTENSION:
+                        self.solve_adjustable_point_vector(LeArmConstants.MIN_EXTENSION + 1)
                     else:
                         print("NO SOLUTION")
                         self.move_past_to_current_setpoint()
+
                     x3, z3 = self.get_coordinates_for_3_axis()
                     print(f"""
-                                Tempx : {x3}
+                                base_3_axis : {x3}
                                 z : {z3}
                                 pitch : {self.current_setpoint.pitch}
                                 command type: {command_type}""")
-                    self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
-                                                                                  self.current_setpoint.pitch,
-                                                                                  self.past_setpoint.get_3_axis_list()))
+                    if is_valid_x_z_coordinate(x3, z3):
+                        self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
+                                                                                      self.current_setpoint.pitch,
+                                                                                      self.past_setpoint.get_3_axis_list()))
+                    else:
+                        print("FOUND INCORRECT SOLUTION")
+                        self.move_past_to_current_setpoint()
 
-    def update_tempX(self):
-        self.temp_X = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
+    def update_base_3_axis(self):
+        self.base_3_axis = -get_2D_vector_length(self.current_setpoint.x, self.current_setpoint.y)
         if self.current_setpoint.x < 0:
-            self.temp_X = -self.temp_X
+            self.base_3_axis = -self.base_3_axis
         elif self.current_setpoint.x == 0 and self.current_setpoint.y < 0:
-            self.temp_X = -self.temp_X
-        self.temp_X = self.temp_X + LeArmConstants.X_SHIFT
+            self.base_3_axis = -self.base_3_axis
+        self.base_3_axis = self.base_3_axis + LeArmConstants.X_SHIFT
 
     def check_new_point(self, x=None, y=None, z=None, pitch=None, roll=None):
         new_point = False
@@ -415,32 +420,47 @@ class ArmKinematics:
         gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
         # print("Gripper Vector Length:" + gripper_length.__str__())
-        return [self.temp_X - gripper_v_x, self.current_setpoint.z - gripper_v_z]
+        return [self.base_3_axis - gripper_v_x, self.current_setpoint.z - gripper_v_z]
 
-    def get_added_gripper_coordinates(self, x, z):
+    def get_added_gripper_coordinates(self, point):
+        # Should maybe make a point or vector class for handling things like this
         gripper_length = (m.sin(self.current_setpoint.theta6) * LeArmConstants.GRIPPER_EVEN_BAR_LINK_LENGTH +
                           LeArmConstants.WRIST_TO_GRIPPER_DISTANCE)
         gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
-        return [x + gripper_v_x, z + gripper_v_z]
+        return [point[0] + gripper_v_x, point[1] + gripper_v_z]
 
     def solve_adjustable_point_vector(self, radius):
         """
-        Removes the gripper component from the <temp_X, z> vector
+        Removes the gripper component from the <base_3_axis, z> vector
         Scales to scaler extension
         Re-adds gripper vector
-        Updates temp_X and z to new values
-        @param scaler
+        Updates base_3_axis and z to new values
+        @param radius
         """
+        z_no_gripper, x_no_gripper = self.get_coordinates_for_3_axis()
+        base_5_axis = -(x_no_gripper - LeArmConstants.X_SHIFT)
+        print(f"""
+        base_5_axis : {base_5_axis}
+        base_3_axis : {self.base_3_axis}""")
 
-        slope = self.current_setpoint.z / -(self.temp_X - LeArmConstants.X_SHIFT)
-        x1 = m.sqrt(square(radius) / (1 + square(slope)))
-        x2 = -x1
-        z1 = m.sqrt(square(radius) / square(x1))
-        z2 = -z1
-        closest_point = compare_points([self.temp_X - LeArmConstants.X_SHIFT, self.current_setpoint.z],
+        slope = z_no_gripper / base_5_axis
+        if slope != 0:
+            x1 = m.sqrt(square(radius) / (1 + square(slope)))
+            x2 = -x1
+            z1 = m.sqrt(square(radius) / square(x1))
+            z2 = -z1
+        else:
+            x1 = 0
+            x2 = 0
+            z1 = radius
+            z2 = -radius
+
+        closest_point = compare_points([base_5_axis, z_no_gripper],
                                        [[x1, z1], [x2, z2]])
-
+        print(f"Closest point before gripper added : {closest_point}")
+        closest_point = self.get_added_gripper_coordinates(closest_point)
+        print(closest_point)
         self.update_xy(closest_point[0])
         self.current_setpoint.z = closest_point[1]
 
