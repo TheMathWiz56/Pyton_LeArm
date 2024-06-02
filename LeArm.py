@@ -470,9 +470,9 @@ class ArmKinematics:
         closest_point = compare_points([base_5_axis, z_no_gripper],
                                        [[x1, z1], [x2, z2]])
         print(f"Closest point before gripper added : {closest_point}")
-        closest_point = self.get_added_gripper_coordinates(closest_point)
+        closest_point = self.get_added_gripper_coordinates([-closest_point[0], closest_point[1]])
         print(closest_point)
-        self.update_xy(closest_point[0])
+        self.update_xy(-closest_point[0])
         self.current_setpoint.z = closest_point[1]
 
     def update_xy(self, value):
