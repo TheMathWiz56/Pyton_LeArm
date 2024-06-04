@@ -19,7 +19,7 @@ def check_angle_achievable(angle):
 
 
 def is_valid_x_z_coordinate(x, z):
-    print(f"Desired x {x}\nDesired z {z}")
+    # print(f"Desired x {x}\nDesired z {z}")
     xz_length = get_2D_vector_length(x, z)
 
     if xz_length > LeArmConstants.MAX_EXTENSION or xz_length < LeArmConstants.MIN_EXTENSION:
@@ -518,6 +518,7 @@ class ArmKinematics:
         for i in range(180):
             self.current_setpoint.pitch = pitch + m.radians(i)
             [x, z] = self.get_coordinates_for_3_axis()
+            print(f"pitch : {self.current_setpoint.pitch}\nx : {x}\nz : {z}")
             if is_valid_x_z_coordinate(x, z):
                 new_pitch = True
                 break
