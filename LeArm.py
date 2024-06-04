@@ -439,6 +439,7 @@ class ArmKinematics:
         Updates base_3_axis and z to new values
         @param radius
         """
+        # Still having problems with inside scaling
         x_no_gripper, z_no_gripper = self.get_coordinates_for_3_axis()
         base_5_axis = -(x_no_gripper - LeArmConstants.X_SHIFT)
 
