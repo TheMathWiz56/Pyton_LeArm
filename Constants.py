@@ -33,8 +33,7 @@ def clamp(n, minn, maxn):
 
 
 def scale_to_range_from_0(n, maxn):
-    remainder = n % maxn
-    return remainder * maxn
+    return n % maxn
 
 
 class LeArmConstants:
