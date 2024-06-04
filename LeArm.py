@@ -446,15 +446,17 @@ class ArmKinematics:
         x_no_gripper, z_no_gripper = self.get_coordinates_for_3_axis()
         base_5_axis = -(x_no_gripper - LeArmConstants.X_SHIFT)
 
-        slope = z_no_gripper / base_5_axis
         Xs = LeArmConstants.X_SHIFT
+        slope = 0
 
         print(f"""
         base_5_axis : {base_5_axis}
         base_3_axis : {self.base_3_axis}
         slope : {slope}""")
 
-        if slope != 0:
+        if int(base_5_axis) != 0:
+            slope = z_no_gripper / base_5_axis
+
             x1 = ((2 * Xs) + m.sqrt(square(2 * Xs) - (4 * (square(slope) + 1) * -(square(radius) - square(Xs))))) / (
                         2 * (square(slope) + 1))
             x2 = ((2 * Xs) - m.sqrt(square(2 * Xs) - (4 * (square(slope) + 1) * -(square(radius) - square(Xs))))) / (
