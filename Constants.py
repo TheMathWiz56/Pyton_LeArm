@@ -32,6 +32,11 @@ def clamp(n, minn, maxn):
     return n
 
 
+def scale_to_range_from_0(n, maxn):
+    remainder = n % maxn
+    return remainder * maxn
+
+
 class LeArmConstants:
     """
     All Constants for LeArm robotic arm project
@@ -125,4 +130,4 @@ class LeArmConstants:
 
     # Extension (with gripper vector removed)
     MAX_EXTENSION = LINK2_LENGTH + LINK3_LENGTH
-    MIN_EXTENSION = get_2D_vector_length(LINK2_LENGTH, LINK3_LENGTH)  # Just LINK2_LENGTH because of servo limitations
+    MIN_EXTENSION = get_2D_vector_length(LINK2_LENGTH, LINK3_LENGTH)

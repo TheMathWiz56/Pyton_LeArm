@@ -531,3 +531,5 @@ class ArmKinematics:
                 break
         if not new_pitch:
             self.current_setpoint.pitch = pitch
+
+        self.current_setpoint.pitch = scale_to_range_from_0(self.current_setpoint.pitch, 2 * m.pi)
