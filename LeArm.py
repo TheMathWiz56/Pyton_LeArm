@@ -525,6 +525,7 @@ class ArmKinematics:
 
             self.current_setpoint.pitch = pitch - m.radians(i)
             [x, z] = self.get_coordinates_for_3_axis()
+            print(f"pitch : {self.current_setpoint.pitch}\nx : {x}\nz : {z}")
             if is_valid_x_z_coordinate(x, z):
                 new_pitch = True
                 break
