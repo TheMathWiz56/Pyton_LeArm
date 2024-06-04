@@ -274,18 +274,21 @@ class ArmKinematics:
         self.base_3_axis = 0
 
     # Careful to only use after the gripper vector has been removed from the arm setpoint
-    def get_base_3_axis_z_length(self):
-        return get_2D_vector_length(self.base_3_axis, self.current_setpoint.z)
+    def get_base_3_axis_z_length_with_gripper(self):
+        [x, z] = self.get_coordinates_for_3_axis()
+        print(f"Old : {get_2D_vector_length(self.base_3_axis, self.current_setpoint.z)}")
+        print(f"New : {get_2D_vector_length(x, z)}")
+        return get_2D_vector_length(x, z)
 
     def clamp_base_3_axis_z_vector(self):
-        if self.get_base_3_axis_z_length() > LeArmConstants.MAX_EXTENSION:
-            scaler = LeArmConstants.MAX_EXTENSION / self.get_base_3_axis_z_length()
-        elif self.get_base_3_axis_z_length() < LeArmConstants.MIN_EXTENSION:
-            scaler = LeArmConstants.MIN_EXTENSION / self.get_base_3_axis_z_length()
+        if self.get_base_3_axis_z_length_with_gripper() > LeArmConstants.MAX_EXTENSION:
+            scaler = LeArmConstants.MAX_EXTENSION / self.get_base_3_axis_z_length_with_gripper()
+        elif self.get_base_3_axis_z_length_with_gripper() < LeArmConstants.MIN_EXTENSION:
+            scaler = LeArmConstants.MIN_EXTENSION / self.get_base_3_axis_z_length_with_gripper()
         else:
             scaler = 1
 
-        print(f"scaler : {scaler}, length : {self.get_base_3_axis_z_length()}")
+        print(f"scaler : {scaler}, length : {self.get_base_3_axis_z_length_with_gripper()}")
         self.base_3_axis = scaler * self.base_3_axis
         self.current_setpoint.z = scaler * self.current_setpoint.z
 
@@ -327,7 +330,7 @@ class ArmKinematics:
 
             print(f"""
             base_3_axis : {x3}
-            z : {z3}
+            z (no gripper): {z3}
             pitch : {self.current_setpoint.pitch}
             command type: {command_type}""")
 
@@ -347,9 +350,9 @@ class ArmKinematics:
                                                                                   self.current_setpoint.pitch,
                                                                                   self.past_setpoint.get_3_axis_list()))
                 else:
-                    if self.get_base_3_axis_z_length() > LeArmConstants.MAX_EXTENSION:
+                    if self.get_base_3_axis_z_length_with_gripper() > LeArmConstants.MAX_EXTENSION:
                         self.solve_adjustable_point_vector(LeArmConstants.MAX_EXTENSION - 1)
-                    elif self.get_base_3_axis_z_length() < LeArmConstants.MIN_EXTENSION:
+                    elif self.get_base_3_axis_z_length_with_gripper() < LeArmConstants.MIN_EXTENSION:
                         self.solve_adjustable_point_vector(LeArmConstants.MIN_EXTENSION + 1)
                     else:
                         print("NO SOLUTION")
@@ -452,8 +455,10 @@ class ArmKinematics:
         slope : {slope}""")
 
         if slope != 0:
-            x1 = ((2 * Xs) + m.sqrt(square(2 * Xs) - (4 * (square(slope) + 1) * -(square(radius) - square(Xs)))))/(2 * (square(slope) + 1))
-            x2 = ((2 * Xs) - m.sqrt(square(2 * Xs) - (4 * (square(slope) + 1) * -(square(radius) - square(Xs)))))/(2 * (square(slope) + 1))
+            x1 = ((2 * Xs) + m.sqrt(square(2 * Xs) - (4 * (square(slope) + 1) * -(square(radius) - square(Xs))))) / (
+                        2 * (square(slope) + 1))
+            x2 = ((2 * Xs) - m.sqrt(square(2 * Xs) - (4 * (square(slope) + 1) * -(square(radius) - square(Xs))))) / (
+                        2 * (square(slope) + 1))
             z1 = (slope / m.fabs(slope)) * m.sqrt(square(radius) - square(x1 - Xs))
             z2 = -(slope / m.fabs(slope)) * m.sqrt(square(radius) - square(x2 - Xs))
         else:
