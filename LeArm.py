@@ -343,7 +343,27 @@ class ArmKinematics:
                                                                                   self.current_setpoint.pitch,
                                                                                   self.past_setpoint.get_3_axis_list()))
             elif command_type == LeArmConstants.CommandType.ADJUSTABLE_PITCH.value:
-                pass
+                if is_valid_x_z_coordinate(x3, z3):
+                    self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
+                                                                                  self.current_setpoint.pitch,
+                                                                                  self.past_setpoint.get_3_axis_list()))
+                else:
+                    self.solve_adjustable_pitch()
+
+                    self.update_base_3_axis()
+                    x3, z3 = self.get_coordinates_for_3_axis()
+                    print(f"""
+                                base_3_axis : {x3}
+                                z : {z3}
+                                pitch : {self.current_setpoint.pitch}
+                                command type: {command_type}""")
+                    if is_valid_x_z_coordinate(x3, z3):
+                        self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
+                                                                                      self.current_setpoint.pitch,
+                                                                                      self.past_setpoint.get_3_axis_list()))
+                    else:
+                        print("UNREACHABLE SOLUTION")
+                        self.move_past_to_current_setpoint()
             elif command_type == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
                 if is_valid_x_z_coordinate(x3, z3):
                     self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
@@ -491,3 +511,21 @@ class ArmKinematics:
         print(f"""
         new x : {self.current_setpoint.x}
         new y : {self.current_setpoint.y}""")
+
+    def solve_adjustable_pitch(self):
+        pitch = self.current_setpoint.pitch
+        new_pitch = False
+        for i in range(180):
+            self.current_setpoint.pitch = pitch + m.radians(i)
+            [x, z] = self.get_coordinates_for_3_axis()
+            if is_valid_x_z_coordinate(x, z):
+                new_pitch = True
+                break
+
+            self.current_setpoint.pitch = pitch - m.radians(i)
+            [x, z] = self.get_coordinates_for_3_axis()
+            if is_valid_x_z_coordinate(x, z):
+                new_pitch = True
+                break
+        if not new_pitch:
+            self.current_setpoint.pitch = pitch
