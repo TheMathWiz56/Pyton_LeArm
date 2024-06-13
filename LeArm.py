@@ -39,7 +39,9 @@ def check_servo_setpoint_list_achievable(setpoint_list):
     achievable = True
     for i in range(len(setpoint_list)):
         if achievable:
-            if i == 0:
+            if setpoint_list[i] is None:
+                achievable = False
+            elif i == 0:
                 achievable = check_angle_achievable_elbow1(setpoint_list[i])
             else:
                 achievable = check_angle_achievable(setpoint_list[i])
@@ -478,9 +480,9 @@ class ArmKinematics:
             slope = z_no_gripper / base_5_axis
 
             x1 = ((2 * Xs) + m.sqrt(square(2 * Xs) - (4 * (square(slope) + 1) * -(square(radius) - square(Xs))))) / (
-                        2 * (square(slope) + 1))
+                    2 * (square(slope) + 1))
             x2 = ((2 * Xs) - m.sqrt(square(2 * Xs) - (4 * (square(slope) + 1) * -(square(radius) - square(Xs))))) / (
-                        2 * (square(slope) + 1))
+                    2 * (square(slope) + 1))
             z1 = (slope / m.fabs(slope)) * m.sqrt(square(radius) - square(x1 - Xs))
             z2 = -(slope / m.fabs(slope)) * m.sqrt(square(radius) - square(x2 - Xs))
         else:
@@ -515,18 +517,24 @@ class ArmKinematics:
     def solve_adjustable_pitch(self):
         pitch = self.current_setpoint.pitch
         new_pitch = False
+        [x, z] = [0, 0]
+
         for i in range(180):
             self.current_setpoint.pitch = pitch + m.radians(i)
             [x, z] = self.get_coordinates_for_3_axis()
             print(f"pitch : {self.current_setpoint.pitch}\nx : {x}\nz : {z}")
-            if is_valid_x_z_coordinate(x, z):
+            if is_valid_x_z_coordinate(x, z) and check_servo_setpoint_list_achievable(solve_3_axis_planar(x, z,
+                                                                                                          self.current_setpoint.pitch,
+                                                                                                          self.past_setpoint.get_3_axis_list())):
                 new_pitch = True
                 break
 
             self.current_setpoint.pitch = pitch - m.radians(i)
             [x, z] = self.get_coordinates_for_3_axis()
             print(f"pitch : {self.current_setpoint.pitch}\nx : {x}\nz : {z}")
-            if is_valid_x_z_coordinate(x, z):
+            if is_valid_x_z_coordinate(x, z) and check_servo_setpoint_list_achievable(solve_3_axis_planar(x, z,
+                                                                                                          self.current_setpoint.pitch,
+                                                                                                          self.past_setpoint.get_3_axis_list())):
                 new_pitch = True
                 break
         if not new_pitch:
