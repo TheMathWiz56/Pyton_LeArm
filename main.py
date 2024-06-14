@@ -19,28 +19,8 @@ class linkParameters - helpful for storing and updating link parameters for a gi
 ----------------------------------------------------------------------------------------------------------------------
 
 To Do List:
-rethink how angles should be passed through -- it is good, honestly
-check past_setpoint update -- its happening
-check math to make sure there are no mistakes -- naaah
-
-
-Nice to Have:
-compare checks to see if all angles are achievable
-FSM to handle command flow
-everything good according to pylint
-
-Final Goal:
-Have the arm repeatably grab and stack 3D printed boxes (1x1x1 in.)
-
-
-simulation for arm without raspberry pi
-
-Issues:
-Scaling is doing weird things
-
-if a point is not achievable make the current point the past setpoint
-
-Should look into python pointers and more advanced class functionality
+Add db for base angle to movement
+auto point scale?
 """
 
 
