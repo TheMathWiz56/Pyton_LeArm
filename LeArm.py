@@ -316,7 +316,6 @@ class Arm:
             self.past_setpoint = past_setpoint
 
         else:
-
             self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint, command_type)
 
             servo_outputs = self.current_setpoint.get_servo_setpoint_list()
@@ -433,6 +432,35 @@ class ArmKinematics:
                         print("UNREACHABLE SOLUTION")
                         self.move_past_to_current_setpoint()
             elif command_type == LeArmConstants.CommandType.ADJUSTABLE_POINT.value:
+                if is_valid_x_z_coordinate(x3, z3):
+                    self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
+                                                                                  self.current_setpoint.pitch,
+                                                                                  self.past_setpoint.get_3_axis_list()))
+                else:
+                    if self.get_base_3_axis_z_length_with_gripper() > LeArmConstants.MAX_EXTENSION:
+                        self.solve_adjustable_point_vector(LeArmConstants.MAX_EXTENSION - 1)
+                    elif self.get_base_3_axis_z_length_with_gripper() < LeArmConstants.MIN_EXTENSION:
+                        self.solve_adjustable_point_vector(LeArmConstants.MIN_EXTENSION + 1)
+                    else:
+                        print("NO SOLUTION")
+                        self.move_past_to_current_setpoint()
+
+                    self.update_base_3_axis()
+                    x3, z3 = self.get_coordinates_for_3_axis()
+                    print(f"""
+                                base_3_axis : {x3}
+                                z : {z3}
+                                pitch : {self.current_setpoint.pitch}
+                                command type: {command_type}""")
+                    if is_valid_x_z_coordinate(x3, z3):
+                        self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
+                                                                                      self.current_setpoint.pitch,
+                                                                                      self.past_setpoint.get_3_axis_list()))
+                    else:
+                        print("UNREACHABLE SOLUTION")
+                        self.move_past_to_current_setpoint()
+            elif command_type == LeArmConstants.CommandType.STEPPED.value:
+                # Good enough for now, may need to also do an adjustable pitch after
                 if is_valid_x_z_coordinate(x3, z3):
                     self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
                                                                                   self.current_setpoint.pitch,
