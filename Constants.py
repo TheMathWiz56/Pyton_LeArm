@@ -24,6 +24,14 @@ def get_2D_vector_length(x, y):
     return m.sqrt(x * x + y * y)
 
 
+def get_3D_vector_length(v):
+    """
+    :param v
+    :return: the length of the 2D vector with components <x,y>
+    """
+    return m.sqrt(square(v[0]) + square(v[1]) + square(v[2]))
+
+
 def clamp(n, minn, maxn):
     if n > maxn:
         return maxn

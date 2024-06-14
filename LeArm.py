@@ -163,8 +163,13 @@ def get_forward_kinematics(link_list: LinkList):
     return base_to_wrist_frame_transformation
 
 
-def get_unit_vector(v):
+def get_unit_vector_2D(v):
     return [v[0] / get_2D_vector_length(v[0], v[1]), v[1] / get_2D_vector_length(v[0], v[1])]
+
+
+def get_unit_vector_3D(v):
+    length = get_3D_vector_length(v)
+    return [v[0] / length, v[1] / length, v[2] / length]
 
 
 def compare_points(reference, point_list):
@@ -251,18 +256,35 @@ class Arm:
         :return:
         """
 
-        self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint, command_type)
+        feedrate = 10  # mm/s
+        dx = x - self.past_setpoint.x
+        dy = y - self.past_setpoint.y
+        dz = z - self.past_setpoint.z
+        dv = [dx, dy, dz]
+        ddv = np.array(get_3D_vector_length(dv)) * feedrate
+        steps = dx / ddv[0]
 
-        servo_outputs = self.current_setpoint.get_servo_setpoint_list()
-        theta_list = self.current_setpoint.get_raw_theta_list_radians()
-        # print("Inverse Kinematics solved for: ")
-        # print(self.current_setpoint.get_raw_theta_list_radians())
-        # print(servo_outputs)
+        dp = (pitch - self.past_setpoint.pitch) / steps
+        dr = (roll - self.past_setpoint.roll) / steps
 
-        # Doesn't include gripper updates
-        self.update_servos_setpoints_raw(servo_outputs)
-        self.link_list.update_joint_revolute_variables(theta_list)
-        self.update_base_to_wrist_frame_transformation()
+        for i in range(m.ceil(steps)):
+            if i < steps:
+                self.kinematics.solve(self.past_setpoint.x + ddv[0] * i, self.past_setpoint.y + ddv[1] * i,
+                                      self.past_setpoint.z + ddv[2] * i, self.past_setpoint.pitch + dp * i,
+                                      self.past_setpoint.roll + dr * i, gripper_setpoint, command_type)
+            else:
+                self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint, command_type)
+
+            servo_outputs = self.current_setpoint.get_servo_setpoint_list()
+            theta_list = self.current_setpoint.get_raw_theta_list_radians()
+            # print("Inverse Kinematics solved for: ")
+            # print(self.current_setpoint.get_raw_theta_list_radians())
+            # print(servo_outputs)
+
+            # Doesn't include gripper updates
+            self.update_servos_setpoints_raw(servo_outputs)
+            self.link_list.update_joint_revolute_variables(theta_list)
+            self.update_base_to_wrist_frame_transformation()
 
     def __str__(self):
         return self.base_to_wrist_frame_transformation
