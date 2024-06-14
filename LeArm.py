@@ -282,11 +282,13 @@ class Arm:
                 self.kinematics.solve(self.past_setpoint.x + ddv[0] * i, self.past_setpoint.y + ddv[1] * i,
                                       self.past_setpoint.z + ddv[2] * i, self.past_setpoint.pitch + dp * i,
                                       self.past_setpoint.roll + dr * i, gripper_setpoint, command_type)
+                print("looping")
                 print(self.past_setpoint.x + ddv[0] * i, self.past_setpoint.y + ddv[1] * i,
                       self.past_setpoint.z + ddv[2] * i, self.past_setpoint.pitch + dp * i,
                       self.past_setpoint.roll + dr * i, gripper_setpoint, command_type)
             else:
                 self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint, command_type)
+                print("end of loop")
                 print(x, y, z, pitch, roll, gripper_setpoint, command_type)
 
             servo_outputs = self.current_setpoint.get_servo_setpoint_list()
