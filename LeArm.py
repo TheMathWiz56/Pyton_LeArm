@@ -303,7 +303,7 @@ class Arm:
             self.update_servos_setpoints_raw(servo_outputs)
             self.link_list.update_joint_revolute_variables(theta_list)
             self.update_base_to_wrist_frame_transformation()
-            time.sleep(1 / frequency)
+            # time.sleep(1 / frequency)
             end = time.time()
             elapsed_time = elapsed_time + (end - start)
 
