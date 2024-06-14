@@ -267,7 +267,15 @@ class Arm:
         print(get_unit_vector_3D(dv))
         print(np.array(get_unit_vector_3D(dv)))
         print(ddv)
-        steps = dx / ddv[0]
+
+        if ddv[0] != 0:
+            steps = dx / ddv[0]
+        elif ddv[1] != 0:
+            steps = dy / ddv[1]
+        elif ddv[2] != 0:
+            steps = dz / ddv[2]
+        else:
+            steps = 1
 
         dp = (pitch - self.past_setpoint.pitch) / steps
         dr = (roll - self.past_setpoint.roll) / steps
