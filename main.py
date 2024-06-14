@@ -25,6 +25,7 @@ auto point scale? || mode for normal jerky movement and smooth movement
 check to see how long calculations take -> max frequency
 update github branches
 change how gripper state changes with movements
+errors out when going to the same point as past
 """
 
 
@@ -50,19 +51,7 @@ def main():
             print("4) Go To Custom Point")
             user_input = input("Select Command: ")
 
-            user_input_int = int(user_input)
-            if user_input_int == 1:
-                command_controller.servo_test()
-            elif user_input_int == 2:
-                command_controller.go_to_vertical_0()
-            elif user_input_int == 3:
-                command_controller.go_to_stow()
-            elif user_input_int == 4:
-                command_controller.go_to()
-            else:
-                print("Invalid Input: Not a Command")
-
-            """try:
+            try:
                 user_input_int = int(user_input)
                 if user_input_int == 1:
                     command_controller.servo_test()
@@ -75,7 +64,7 @@ def main():
                 else:
                     print("Invalid Input: Not a Command")
             except ValueError:
-                print("Invalid Input: Value Error")"""
+                print("Invalid Input: Value Error")
         except KeyboardInterrupt:
             print("Exiting")
             is_running = False
