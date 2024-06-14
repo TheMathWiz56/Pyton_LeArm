@@ -258,8 +258,10 @@ class Arm:
         :return:
         """
 
-        feedrate = 35  # mm/s
-        frequency = 20
+        # Does not reflect real world feedrate and frequency
+        feedrate = 50  # mm/s
+        frequency = 50
+
         dx = x - self.current_setpoint.x
         dy = y - self.current_setpoint.y
         dz = z - self.current_setpoint.z
