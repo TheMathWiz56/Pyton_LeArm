@@ -22,6 +22,7 @@ To Do List:
 Add db for base angle to movement
 auto point scale?
 check to see how long calculations take -> max frequency
+update github branchs
 """
 
 
