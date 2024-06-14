@@ -262,6 +262,7 @@ class Arm:
         dz = z - self.past_setpoint.z
         dv = [dx, dy, dz]
         ddv = np.array(get_3D_vector_length(dv)) * feedrate
+        print(ddv)
         steps = dx / ddv[0]
 
         dp = (pitch - self.past_setpoint.pitch) / steps
