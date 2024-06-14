@@ -258,12 +258,12 @@ class Arm:
         :return:
         """
 
-        feedrate = 50  # mm/s
+        feedrate = 35  # mm/s
         dx = x - self.past_setpoint.x
         dy = y - self.past_setpoint.y
         dz = z - self.past_setpoint.z
         dv = [dx, dy, dz]
-        ddv = np.array(get_unit_vector_3D(dv)) * feedrate
+        ddv = np.array(get_unit_vector_3D(dv)) * (feedrate / 3)
         print(get_unit_vector_3D(dv))
         print(np.array(get_unit_vector_3D(dv)))
         print(ddv)
@@ -298,7 +298,7 @@ class Arm:
             self.update_servos_setpoints_raw(servo_outputs)
             self.link_list.update_joint_revolute_variables(theta_list)
             self.update_base_to_wrist_frame_transformation()
-            time.sleep(1)
+            time.sleep(0.333)
 
     def __str__(self):
         return self.base_to_wrist_frame_transformation
