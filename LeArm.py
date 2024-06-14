@@ -285,17 +285,18 @@ class Arm:
         print(dp)
         print(dr)
 
+        past_setpoint = self.past_setpoint
 
-        for i in range(m.ceil(steps)):
+        for i in range(m.ceil(steps) + 1):
             if i < steps:
-                self.kinematics.solve(self.past_setpoint.x + ddv[0] * i, self.past_setpoint.y + ddv[1] * i,
-                                      self.past_setpoint.z + ddv[2] * i, self.past_setpoint.pitch + dp * i,
-                                      self.past_setpoint.roll + dr * i, gripper_setpoint, command_type)
+                self.kinematics.solve(past_setpoint.x + ddv[0] * i, past_setpoint.y + ddv[1] * i,
+                                      past_setpoint.z + ddv[2] * i, past_setpoint.pitch + dp * i,
+                                      past_setpoint.roll + dr * i, gripper_setpoint, command_type)
                 print(f"looping || i : {i}")
-                print(self.past_setpoint.x + ddv[0] * i, self.past_setpoint.y + ddv[1] * i,
-                      self.past_setpoint.z + ddv[2] * i, self.past_setpoint.pitch + dp * i,
-                      self.past_setpoint.roll + dr * i, gripper_setpoint, command_type)
-                print(self.past_setpoint)
+                print(past_setpoint.x + ddv[0] * i, past_setpoint.y + ddv[1] * i,
+                      past_setpoint.z + ddv[2] * i, past_setpoint.pitch + dp * i,
+                      past_setpoint.roll + dr * i, gripper_setpoint, command_type)
+                print(past_setpoint)
                 print(ddv[2] * i)
             else:
                 self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint, command_type)
@@ -310,6 +311,9 @@ class Arm:
             self.link_list.update_joint_revolute_variables(theta_list)
             self.update_base_to_wrist_frame_transformation()
             time.sleep(0.333)
+
+        # Do this because the self.past_setpoint value is updated in the kinematics side because it's pbr
+        self.past_setpoint = past_setpoint
 
     def __str__(self):
         return self.base_to_wrist_frame_transformation
