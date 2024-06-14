@@ -282,7 +282,7 @@ class Arm:
                 self.kinematics.solve(self.past_setpoint.x + ddv[0] * i, self.past_setpoint.y + ddv[1] * i,
                                       self.past_setpoint.z + ddv[2] * i, self.past_setpoint.pitch + dp * i,
                                       self.past_setpoint.roll + dr * i, gripper_setpoint, command_type)
-                print("looping")
+                print(f"looping || i : {i}")
                 print(self.past_setpoint.x + ddv[0] * i, self.past_setpoint.y + ddv[1] * i,
                       self.past_setpoint.z + ddv[2] * i, self.past_setpoint.pitch + dp * i,
                       self.past_setpoint.roll + dr * i, gripper_setpoint, command_type)
