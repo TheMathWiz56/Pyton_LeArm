@@ -47,7 +47,7 @@ class Command:
         z = int(input("Enter the Z coordinate: "))
         pitch = int(input("Enter the PITCH (DEGREES): "))
         roll = int(input("Enter the ROLL (DEGREES): "))
-        gripper_state = int(input("Enter 1 for gripper open, 2 for gripper middle, 3 for gripper closed: "))
+        gripper_state = int(input("Enter 0 for gripper open, 1 for gripper middle, 2 for gripper closed: "))
         mode = int(input("Enter 0 for FIXED, 1 for ADJUSTABLE PITCH, 2 for ADJUSTABLE POINT, 3 for STEPPED, "
                          "4 for TRAVEL AT HEIGHT: "))
         self.le_arm.go_to(gripper_state, mode, x, y, z, m.radians(pitch), m.radians(roll))
