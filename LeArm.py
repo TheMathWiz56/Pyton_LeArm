@@ -259,11 +259,12 @@ class Arm:
         """
 
         feedrate = 35  # mm/s
+        frequency = 20
         dx = x - self.current_setpoint.x
         dy = y - self.current_setpoint.y
         dz = z - self.current_setpoint.z
         dv = [dx, dy, dz]
-        ddv = np.array(get_unit_vector_3D(dv)) * (feedrate / 3)
+        ddv = np.array(get_unit_vector_3D(dv)) * (feedrate / frequency)
 
         if ddv[0] != 0:
             steps = dx / ddv[0]
@@ -315,7 +316,7 @@ class Arm:
             self.update_servos_setpoints_raw(servo_outputs)
             self.link_list.update_joint_revolute_variables(theta_list)
             self.update_base_to_wrist_frame_transformation()
-            time.sleep(0.333)
+            time.sleep(1 / frequency)
 
         # Do this because the self.past_setpoint value is updated in the kinematics side because it's pbr
         self.past_setpoint = past_setpoint
