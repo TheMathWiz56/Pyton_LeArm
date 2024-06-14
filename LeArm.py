@@ -278,13 +278,7 @@ class Arm:
         dp = (pitch - self.current_setpoint.pitch) / steps
         dr = (roll - self.current_setpoint.roll) / steps
 
-        print(feedrate)
-        print([dx, dy, dz])
-        print(dv)
-        print(ddv)
-        print(steps)
-        print(dp)
-        print(dr)
+        elapsed_time = 0
 
         # Not self.past_setpoint since this would be the setpoint from the previous iteration
         # The current setpoint has yet to become the past_setpoint, so it should be used as the
@@ -294,20 +288,13 @@ class Arm:
         past_setpoint.update_setpoints(self.current_setpoint.get_setpoint_as_list())
 
         for i in range(m.ceil(steps) + 1):
+            start = time.time()
             if i < steps:
                 self.kinematics.solve(past_setpoint.x + ddv[0] * i, past_setpoint.y + ddv[1] * i,
                                       past_setpoint.z + ddv[2] * i, past_setpoint.pitch + dp * i,
                                       past_setpoint.roll + dr * i, gripper_setpoint, command_type)
-                print(f"looping || i : {i}")
-                print(past_setpoint.x + ddv[0] * i, past_setpoint.y + ddv[1] * i,
-                      past_setpoint.z + ddv[2] * i, past_setpoint.pitch + dp * i,
-                      past_setpoint.roll + dr * i, gripper_setpoint, command_type)
-                print(past_setpoint)
-                print(ddv[2] * i)
             else:
                 self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint, command_type)
-                print("end of loop")
-                print(x, y, z, pitch, roll, gripper_setpoint, command_type)
 
             servo_outputs = self.current_setpoint.get_servo_setpoint_list()
             theta_list = self.current_setpoint.get_raw_theta_list_radians()
@@ -317,6 +304,10 @@ class Arm:
             self.link_list.update_joint_revolute_variables(theta_list)
             self.update_base_to_wrist_frame_transformation()
             time.sleep(1 / frequency)
+            end = time.time()
+            elapsed_time = elapsed_time + (end - start)
+
+        print(f"Average Cycle Time : {elapsed_time / steps}")
 
         # Do this because the self.past_setpoint value is updated in the kinematics side because it's pbr
         self.past_setpoint = past_setpoint

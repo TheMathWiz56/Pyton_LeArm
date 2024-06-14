@@ -19,10 +19,12 @@ class linkParameters - helpful for storing and updating link parameters for a gi
 ----------------------------------------------------------------------------------------------------------------------
 
 To Do List:
-Add db for base angle to movement
-auto point scale?
+Add db for base angle to movement -- built into xyz scaling
+auto point scale? || mode for normal jerky movement and smooth movement
+    smooth auto point scales (then pitch?)
 check to see how long calculations take -> max frequency
-update github branchs
+update github branches
+change how gripper state changes with movements
 """
 
 
