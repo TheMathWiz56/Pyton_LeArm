@@ -117,7 +117,7 @@ class LeArmConstants:
     ELBOW3_VERTICAL = 90
     WRIST_VERTICAL = 90
     VERTICAL_POSITIONS_LIST = [SHOULDER_VERTICAL, ELBOW1_VERTICAL, ELBOW2_VERTICAL, ELBOW3_VERTICAL, WRIST_VERTICAL,
-                               GripperState.MIDDLE.value]
+                               gripper_positions[1]]
 
     # Stow positions
     SHOULDER_STOW = 30
@@ -126,7 +126,7 @@ class LeArmConstants:
     ELBOW3_STOW = 30
     WRIST_STOW = 110
     STOW_POSITIONS_LIST = [SHOULDER_STOW, ELBOW1_STOW, ELBOW2_STOW, ELBOW3_STOW, WRIST_STOW,
-                           GripperState.OPEN.value]
+                           gripper_positions[0]]
 
     WRIST_TO_GRIPPER_DISTANCE = 95 + 20.075 + 27.53
     GRIPPER_EVEN_BAR_LINK_LENGTH = 30
