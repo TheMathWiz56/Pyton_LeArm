@@ -285,6 +285,7 @@ class Arm:
         print(dp)
         print(dr)
 
+
         for i in range(m.ceil(steps)):
             if i < steps:
                 self.kinematics.solve(self.past_setpoint.x + ddv[0] * i, self.past_setpoint.y + ddv[1] * i,
