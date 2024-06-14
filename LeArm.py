@@ -366,11 +366,11 @@ class ArmKinematics:
 
             x3, z3 = self.get_coordinates_for_3_axis()
 
-            print(f"""
-            base_3_axis : {x3}
-            z (no gripper): {z3}
-            pitch : {self.current_setpoint.pitch}
-            command type: {command_type}""")
+            # print(f"""
+            # base_3_axis : {x3}
+            # z (no gripper): {z3}
+            # pitch : {self.current_setpoint.pitch}
+            # command type: {command_type}""")
 
             if command_type == LeArmConstants.CommandType.FIXED.value:
                 if not is_valid_x_z_coordinate(x3, z3):
