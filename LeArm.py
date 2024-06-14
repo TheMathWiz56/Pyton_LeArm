@@ -191,16 +191,6 @@ def get_distance_between_points(point1, point2):
     return distance
 
 
-def get_gipper_position_from_state(state):
-    if state == 0:
-        return LeArmConstants.GripperState.OPEN.value
-    elif state == 1:
-        return LeArmConstants.GripperState.MIDDLE.value
-    elif state == 2:
-        return LeArmConstants.GripperState.CLOSED.value
-    else:
-        return LeArmConstants.GripperState.OPEN.value
-
 
 # ____________________________________________________________________________________________________________________
 
@@ -269,7 +259,7 @@ class Arm:
         :return:
         """
 
-        print(gripper_setpoint)
+        print(LeArmConstants.gripper_positions[gripper_setpoint])
 
         if command_type == LeArmConstants.CommandType.STEPPED.value:
             # Does not reflect real world feedrate and frequency.
@@ -308,9 +298,9 @@ class Arm:
                 if i < steps:
                     self.kinematics.solve(past_setpoint.x + ddv[0] * i, past_setpoint.y + ddv[1] * i,
                                           past_setpoint.z + ddv[2] * i, past_setpoint.pitch + dp * i,
-                                          past_setpoint.roll + dr * i, get_gipper_position_from_state(gripper_setpoint), command_type)
+                                          past_setpoint.roll + dr * i, LeArmConstants.gripper_positions[gripper_setpoint], command_type)
                 else:
-                    self.kinematics.solve(x, y, z, pitch, roll, get_gipper_position_from_state(gripper_setpoint), command_type)
+                    self.kinematics.solve(x, y, z, pitch, roll, LeArmConstants.gripper_positions[gripper_setpoint], command_type)
 
                 servo_outputs = self.current_setpoint.get_servo_setpoint_list()
                 theta_list = self.current_setpoint.get_raw_theta_list_radians()
@@ -329,7 +319,7 @@ class Arm:
             self.past_setpoint = past_setpoint
 
         else:
-            self.kinematics.solve(x, y, z, pitch, roll, get_gipper_position_from_state(gripper_setpoint), command_type)
+            self.kinematics.solve(x, y, z, pitch, roll, LeArmConstants.gripper_positions[gripper_setpoint], command_type)
 
             servo_outputs = self.current_setpoint.get_servo_setpoint_list()
             theta_list = self.current_setpoint.get_raw_theta_list_radians()

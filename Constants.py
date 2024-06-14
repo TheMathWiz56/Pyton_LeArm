@@ -49,13 +49,7 @@ class LeArmConstants:
     All Constants for LeArm robotic arm project
     """
 
-    class GripperState(Enum):
-        """"
-        Enumerator for keeping track of gripper states
-        """
-        OPEN = 0
-        MIDDLE = 45
-        CLOSED = 80
+    gripper_positions = [0, 45, 80]
 
     # Enumerator for keeping track of Link Types
     class LinkType(Enum):
