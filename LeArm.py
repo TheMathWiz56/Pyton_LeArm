@@ -285,8 +285,11 @@ class Arm:
         print(dp)
         print(dr)
 
+        # Not self.past_setpoint since this would be the setpoint from the previous iteration
+        # The current setpoint has yet to become the past_setpoint so it should be used as the
+        # "past_setpoint"
         past_setpoint = ArmSetpoint()
-        past_setpoint.update_setpoints(self.past_setpoint.get_setpoint_as_list())
+        past_setpoint.update_setpoints(self.current_setpoint.get_setpoint_as_list())
 
         for i in range(m.ceil(steps) + 1):
             if i < steps:
