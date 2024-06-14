@@ -72,6 +72,7 @@ class LeArmConstants:
         FIXED = 0
         ADJUSTABLE_PITCH = 1
         ADJUSTABLE_POINT = 2
+        STEPPED = 3
 
     class PINS(Enum):
         """"

@@ -258,61 +258,77 @@ class Arm:
         :return:
         """
 
-        # Does not reflect real world feedrate and frequency.
-        feedrate = 50  # mm/s
-        frequency = 50
+        if command_type == LeArmConstants.CommandType.STEPPED.value:
+            # Does not reflect real world feedrate and frequency.
+            feedrate = 75  # mm/s
+            frequency = 50
 
-        dx = x - self.current_setpoint.x
-        dy = y - self.current_setpoint.y
-        dz = z - self.current_setpoint.z
-        dv = [dx, dy, dz]
-        ddv = np.array(get_unit_vector_3D(dv)) * (feedrate / frequency)
+            dx = x - self.current_setpoint.x
+            dy = y - self.current_setpoint.y
+            dz = z - self.current_setpoint.z
+            dv = [dx, dy, dz]
+            ddv = np.array(get_unit_vector_3D(dv)) * (feedrate / frequency)
 
-        if ddv[0] != 0:
-            steps = dx / ddv[0]
-        elif ddv[1] != 0:
-            steps = dy / ddv[1]
-        elif ddv[2] != 0:
-            steps = dz / ddv[2]
-        else:
-            steps = 1
-
-        dp = (pitch - self.current_setpoint.pitch) / steps
-        dr = (roll - self.current_setpoint.roll) / steps
-
-        elapsed_time = 0
-
-        # Not self.past_setpoint since this would be the setpoint from the previous iteration
-        # The current setpoint has yet to become the past_setpoint, so it should be used as the
-        # "past_setpoint"
-        past_setpoint = ArmSetpoint()
-        # Do it this way so that it is pbv and not pbr
-        past_setpoint.update_setpoints(self.current_setpoint.get_setpoint_as_list())
-
-        for i in range(m.ceil(steps) + 1):
-            start = time.time()
-            if i < steps:
-                self.kinematics.solve(past_setpoint.x + ddv[0] * i, past_setpoint.y + ddv[1] * i,
-                                      past_setpoint.z + ddv[2] * i, past_setpoint.pitch + dp * i,
-                                      past_setpoint.roll + dr * i, gripper_setpoint, command_type)
+            if ddv[0] != 0:
+                steps = dx / ddv[0]
+            elif ddv[1] != 0:
+                steps = dy / ddv[1]
+            elif ddv[2] != 0:
+                steps = dz / ddv[2]
             else:
-                self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint, command_type)
+                steps = 1
+
+            dp = (pitch - self.current_setpoint.pitch) / steps
+            dr = (roll - self.current_setpoint.roll) / steps
+
+            elapsed_time = 0
+
+            # Not self.past_setpoint since this would be the setpoint from the previous iteration
+            # The current setpoint has yet to become the past_setpoint, so it should be used as the
+            # "past_setpoint"
+            past_setpoint = ArmSetpoint()
+            # Do it this way so that it is pbv and not pbr
+            past_setpoint.update_setpoints(self.current_setpoint.get_setpoint_as_list())
+
+            for i in range(m.ceil(steps) + 1):
+                start = time.time()
+                if i < steps:
+                    self.kinematics.solve(past_setpoint.x + ddv[0] * i, past_setpoint.y + ddv[1] * i,
+                                          past_setpoint.z + ddv[2] * i, past_setpoint.pitch + dp * i,
+                                          past_setpoint.roll + dr * i, gripper_setpoint, command_type)
+                else:
+                    self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint, command_type)
+
+                servo_outputs = self.current_setpoint.get_servo_setpoint_list()
+                theta_list = self.current_setpoint.get_raw_theta_list_radians()
+
+                # Doesn't include gripper updates
+                self.update_servos_setpoints_raw(servo_outputs)
+                self.link_list.update_joint_revolute_variables(theta_list)
+                self.update_base_to_wrist_frame_transformation()
+                # time.sleep(1 / frequency)
+                end = time.time()
+                elapsed_time = elapsed_time + (end - start)
+
+            print(f"Average Cycle Time : {elapsed_time / steps}")
+
+            # Do this because the self.past_setpoint value is updated in the kinematics side because it's pbr
+            self.past_setpoint = past_setpoint
+
+        else:
+
+            self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint, command_type)
 
             servo_outputs = self.current_setpoint.get_servo_setpoint_list()
             theta_list = self.current_setpoint.get_raw_theta_list_radians()
+            # print("Inverse Kinematics solved for: ")
+            # print(self.current_setpoint.get_raw_theta_list_radians())
+            # print(servo_outputs)
 
             # Doesn't include gripper updates
             self.update_servos_setpoints_raw(servo_outputs)
             self.link_list.update_joint_revolute_variables(theta_list)
             self.update_base_to_wrist_frame_transformation()
-            # time.sleep(1 / frequency)
-            end = time.time()
-            elapsed_time = elapsed_time + (end - start)
-
-        print(f"Average Cycle Time : {elapsed_time / steps}")
-
-        # Do this because the self.past_setpoint value is updated in the kinematics side because it's pbr
-        self.past_setpoint = past_setpoint
 
     def __str__(self):
         return self.base_to_wrist_frame_transformation
