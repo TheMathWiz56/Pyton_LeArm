@@ -264,9 +264,6 @@ class Arm:
         dz = z - self.past_setpoint.z
         dv = [dx, dy, dz]
         ddv = np.array(get_unit_vector_3D(dv)) * (feedrate / 3)
-        print(get_unit_vector_3D(dv))
-        print(np.array(get_unit_vector_3D(dv)))
-        print(ddv)
 
         if ddv[0] != 0:
             steps = dx / ddv[0]
@@ -285,14 +282,15 @@ class Arm:
                 self.kinematics.solve(self.past_setpoint.x + ddv[0] * i, self.past_setpoint.y + ddv[1] * i,
                                       self.past_setpoint.z + ddv[2] * i, self.past_setpoint.pitch + dp * i,
                                       self.past_setpoint.roll + dr * i, gripper_setpoint, command_type)
+                print(self.past_setpoint.x + ddv[0] * i, self.past_setpoint.y + ddv[1] * i,
+                      self.past_setpoint.z + ddv[2] * i, self.past_setpoint.pitch + dp * i,
+                      self.past_setpoint.roll + dr * i, gripper_setpoint, command_type)
             else:
                 self.kinematics.solve(x, y, z, pitch, roll, gripper_setpoint, command_type)
+                print(x, y, z, pitch, roll, gripper_setpoint, command_type)
 
             servo_outputs = self.current_setpoint.get_servo_setpoint_list()
             theta_list = self.current_setpoint.get_raw_theta_list_radians()
-            # print("Inverse Kinematics solved for: ")
-            # print(self.current_setpoint.get_raw_theta_list_radians())
-            # print(servo_outputs)
 
             # Doesn't include gripper updates
             self.update_servos_setpoints_raw(servo_outputs)
@@ -558,7 +556,7 @@ class ArmKinematics:
         for i in range(180):
             self.current_setpoint.pitch = pitch + m.radians(i)
             [x, z] = self.get_coordinates_for_3_axis()
-            print(f"pitch : {self.current_setpoint.pitch}\nx : {x}\nz : {z}")
+            # print(f"pitch : {self.current_setpoint.pitch}\nx : {x}\nz : {z}")
             if is_valid_x_z_coordinate(x, z) and check_servo_setpoint_list_achievable(solve_3_axis_planar(x, z,
                                                                                                           self.current_setpoint.pitch,
                                                                                                           self.past_setpoint.get_3_axis_list())):
@@ -567,7 +565,7 @@ class ArmKinematics:
 
             self.current_setpoint.pitch = pitch - m.radians(i)
             [x, z] = self.get_coordinates_for_3_axis()
-            print(f"pitch : {self.current_setpoint.pitch}\nx : {x}\nz : {z}")
+            # print(f"pitch : {self.current_setpoint.pitch}\nx : {x}\nz : {z}")
             if is_valid_x_z_coordinate(x, z) and check_servo_setpoint_list_achievable(solve_3_axis_planar(x, z,
                                                                                                           self.current_setpoint.pitch,
                                                                                                           self.past_setpoint.get_3_axis_list())):
