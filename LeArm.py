@@ -263,7 +263,9 @@ class Arm:
         dy = y - self.past_setpoint.y
         dz = z - self.past_setpoint.z
         dv = [dx, dy, dz]
-        ddv = np.array(get_3D_vector_length(dv)) * feedrate
+        ddv = np.array(get_unit_vector_3D(dv)) * feedrate
+        print(get_3D_vector_length(dv))
+        print(np.array(get_3D_vector_length(dv)))
         print(ddv)
         steps = dx / ddv[0]
 
