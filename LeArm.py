@@ -259,9 +259,9 @@ class Arm:
         """
 
         feedrate = 35  # mm/s
-        dx = x - self.past_setpoint.x
-        dy = y - self.past_setpoint.y
-        dz = z - self.past_setpoint.z
+        dx = x - self.current_setpoint.x
+        dy = y - self.current_setpoint.y
+        dz = z - self.current_setpoint.z
         dv = [dx, dy, dz]
         ddv = np.array(get_unit_vector_3D(dv)) * (feedrate / 3)
 
@@ -274,8 +274,8 @@ class Arm:
         else:
             steps = 1
 
-        dp = (pitch - self.past_setpoint.pitch) / steps
-        dr = (roll - self.past_setpoint.roll) / steps
+        dp = (pitch - self.current_setpoint.pitch) / steps
+        dr = (roll - self.current_setpoint.roll) / steps
 
         print(feedrate)
         print([dx, dy, dz])
@@ -286,9 +286,10 @@ class Arm:
         print(dr)
 
         # Not self.past_setpoint since this would be the setpoint from the previous iteration
-        # The current setpoint has yet to become the past_setpoint so it should be used as the
+        # The current setpoint has yet to become the past_setpoint, so it should be used as the
         # "past_setpoint"
         past_setpoint = ArmSetpoint()
+        # Do it this way so that it is pbv and not pbr
         past_setpoint.update_setpoints(self.current_setpoint.get_setpoint_as_list())
 
         for i in range(m.ceil(steps) + 1):
