@@ -15,7 +15,7 @@ class ArmSetpoint:
         self.theta3 = m.radians(LeArmConstants.ELBOW2_VERTICAL)
         self.theta4 = m.radians(LeArmConstants.ELBOW3_VERTICAL)
         self.theta5 = m.radians(LeArmConstants.WRIST_VERTICAL)
-        self.theta6 = m.radians(LeArmConstants.GripperState.MIDDLE.value)
+        self.theta6 = m.radians(LeArmConstants.gripper_positions[1])
 
     def update_setpoints(self, setpoint_as_list):
         self.x = setpoint_as_list[0]
