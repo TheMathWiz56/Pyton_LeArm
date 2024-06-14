@@ -258,7 +258,7 @@ class Arm:
         :return:
         """
 
-        feedrate = 10  # mm/s
+        feedrate = 50  # mm/s
         dx = x - self.past_setpoint.x
         dy = y - self.past_setpoint.y
         dz = z - self.past_setpoint.z
