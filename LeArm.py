@@ -258,7 +258,7 @@ class Arm:
         :return:
         """
 
-        # Does not reflect real world feedrate and frequency
+        # Does not reflect real world feedrate and frequency.
         feedrate = 50  # mm/s
         frequency = 50
 
