@@ -21,6 +21,7 @@ class linkParameters - helpful for storing and updating link parameters for a gi
 To Do List:
 Add db for base angle to movement
 auto point scale?
+check to see how long calculations take -> max frequency
 """
 
 
