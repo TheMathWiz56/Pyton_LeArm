@@ -258,6 +258,8 @@ class Arm:
         :return:
         """
 
+        print(gripper_setpoint)
+
         if command_type == LeArmConstants.CommandType.STEPPED.value:
             # Does not reflect real world feedrate and frequency.
             feedrate = 75  # mm/s
