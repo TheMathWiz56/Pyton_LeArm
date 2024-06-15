@@ -321,7 +321,7 @@ class Arm:
 
             # Do gripper last
             print(self.current_setpoint.theta6)
-            self.set_setpoint_to_servo_raw(self.current_setpoint.theta6, LeArmConstants.PINS.GRIPPER.value)
+            self.set_setpoint_to_servo_raw(m.degrees(self.current_setpoint.theta6), LeArmConstants.PINS.GRIPPER.value)
 
         else:
             self.kinematics.solve(x, y, z, pitch, roll, LeArmConstants.gripper_positions[gripper_setpoint],
