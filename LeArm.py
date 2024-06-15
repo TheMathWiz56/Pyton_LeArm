@@ -307,7 +307,8 @@ class Arm:
                 print(servo_outputs)
                 theta_list = self.current_setpoint.get_raw_theta_list_radians()
 
-                self.update_servos_setpoints_raw(servo_outputs)
+                # Should exclude gripper updates
+                self.update_servos_setpoints_raw(servo_outputs[:5])
                 self.link_list.update_joint_revolute_variables(theta_list)
                 self.update_base_to_wrist_frame_transformation()
                 # time.sleep(1 / frequency)
@@ -318,6 +319,9 @@ class Arm:
 
             # Do this because the self.past_setpoint value is updated in the kinematics side because it's pbr
             self.past_setpoint = past_setpoint
+
+            # Do gripper last
+            self.set_setpoint_to_servo_raw(self.current_setpoint.theta6, LeArmConstants.PINS.GRIPPER.value)
 
         else:
             self.kinematics.solve(x, y, z, pitch, roll, LeArmConstants.gripper_positions[gripper_setpoint],
