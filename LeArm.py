@@ -191,7 +191,6 @@ def get_distance_between_points(point1, point2):
     return distance
 
 
-
 # ____________________________________________________________________________________________________________________
 
 # Arm class - generates base to end-effector transform, handles kinematic operations, handles servo periodic??? update
@@ -298,14 +297,16 @@ class Arm:
                 if i < steps:
                     self.kinematics.solve(past_setpoint.x + ddv[0] * i, past_setpoint.y + ddv[1] * i,
                                           past_setpoint.z + ddv[2] * i, past_setpoint.pitch + dp * i,
-                                          past_setpoint.roll + dr * i, LeArmConstants.gripper_positions[gripper_setpoint], command_type)
+                                          past_setpoint.roll + dr * i,
+                                          LeArmConstants.gripper_positions[gripper_setpoint], command_type)
                 else:
-                    self.kinematics.solve(x, y, z, pitch, roll, LeArmConstants.gripper_positions[gripper_setpoint], command_type)
+                    self.kinematics.solve(x, y, z, pitch, roll, LeArmConstants.gripper_positions[gripper_setpoint],
+                                          command_type)
 
                 servo_outputs = self.current_setpoint.get_servo_setpoint_list()
+                print(servo_outputs)
                 theta_list = self.current_setpoint.get_raw_theta_list_radians()
 
-                # Doesn't include gripper updates
                 self.update_servos_setpoints_raw(servo_outputs)
                 self.link_list.update_joint_revolute_variables(theta_list)
                 self.update_base_to_wrist_frame_transformation()
@@ -319,7 +320,8 @@ class Arm:
             self.past_setpoint = past_setpoint
 
         else:
-            self.kinematics.solve(x, y, z, pitch, roll, LeArmConstants.gripper_positions[gripper_setpoint], command_type)
+            self.kinematics.solve(x, y, z, pitch, roll, LeArmConstants.gripper_positions[gripper_setpoint],
+                                  command_type)
 
             servo_outputs = self.current_setpoint.get_servo_setpoint_list()
             theta_list = self.current_setpoint.get_raw_theta_list_radians()
