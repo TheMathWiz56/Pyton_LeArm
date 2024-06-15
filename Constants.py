@@ -47,9 +47,11 @@ def scale_to_range_from_0(n, maxn):
 def get_gripper_state_from_angle_rad(angle):
     floating_point_error = .1
     angle = m.degrees(angle)
+    index = 0
     for gripper_position in LeArmConstants.gripper_positions:
         if gripper_position - floating_point_error < angle < gripper_position + floating_point_error:
-            return gripper_position
+            return index
+        index = index + 1
 
     return -1
 
