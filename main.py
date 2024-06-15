@@ -24,6 +24,7 @@ auto point scale? || mode for normal jerky movement and smooth movement
 update github branches
 change how gripper state changes with movements
 errors out when going to the same point as past
+Lots of cleanup and restructuring
 """
 
 
