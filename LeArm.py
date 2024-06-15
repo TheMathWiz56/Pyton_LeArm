@@ -304,7 +304,6 @@ class Arm:
                                           command_type)
 
                 servo_outputs = self.current_setpoint.get_servo_setpoint_list()
-                print(servo_outputs)
                 theta_list = self.current_setpoint.get_raw_theta_list_radians()
 
                 # Should exclude gripper updates
@@ -321,6 +320,7 @@ class Arm:
             self.past_setpoint = past_setpoint
 
             # Do gripper last
+            print(self.current_setpoint.theta6)
             self.set_setpoint_to_servo_raw(self.current_setpoint.theta6, LeArmConstants.PINS.GRIPPER.value)
 
         else:
