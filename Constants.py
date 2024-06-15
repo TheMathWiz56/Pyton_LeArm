@@ -44,6 +44,16 @@ def scale_to_range_from_0(n, maxn):
     return n % maxn
 
 
+def get_gripper_state_from_angle_rad(angle):
+    floating_point_error = .1
+    angle = m.degrees(angle)
+    for gripper_position in LeArmConstants.gripper_positions:
+        if gripper_position - floating_point_error < angle < gripper_position + floating_point_error:
+            return gripper_position
+
+    return -1
+
+
 class LeArmConstants:
     """
     All Constants for LeArm robotic arm project
@@ -134,3 +144,5 @@ class LeArmConstants:
     # Extension (with gripper vector removed)
     MAX_EXTENSION = LINK2_LENGTH + LINK3_LENGTH
     MIN_EXTENSION = get_2D_vector_length(LINK2_LENGTH, LINK3_LENGTH)
+
+    CRUISING_HEIGHT = 310
