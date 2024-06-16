@@ -21,7 +21,6 @@ def check_angle_achievable(angle):
 
 
 def is_valid_x_z_coordinate(x, z):
-    # print(f"Desired x {x}\nDesired z {z}")
     xz_length = get_2D_vector_length(x, z)
 
     if xz_length > LeArmConstants.MAX_EXTENSION or xz_length < LeArmConstants.MIN_EXTENSION:
@@ -78,11 +77,6 @@ def compare(sol1, sol2, past_setpoint):
     sol1_achievable = check_servo_setpoint_list_achievable(sol1)
     sol2_achievable = check_servo_setpoint_list_achievable(sol2)
 
-    # print(f"""sol1: {sol1}
-    # sol1_achievable: {sol1_achievable}
-    # sol2: {sol2}
-    # sol2_achievable: {sol2_achievable}""")
-
     if sol1_achievable and sol2_achievable:
         travel1 = get_travel(sol1, past_setpoint)
         travel2 = get_travel(sol2, past_setpoint)
@@ -138,20 +132,6 @@ Need to add shift for elbow1 being off center
 
     theta_4 = pitch - theta_2 - theta_3
     theta_4_N = pitch - theta_2_N - theta_3_N
-
-    """print(f"psi: {psi}\n"
-              f"beta: {beta}\n"
-              f"length xz: {self.get_base_3_axis_z_length()}\n"
-              f"square L2: {square(LeArmConstants.LINK2_LENGTH)}\n"
-              f"square L3: {square(LeArmConstants.LINK3_LENGTH)}\n"
-              f"Denominator: {2 * LeArmConstants.LINK2_LENGTH * self.get_base_3_axis_z_length()}")
-
-    print(f"theta2: {theta_2}\n"
-        f"theta3: {theta_3}\n"
-              f"theta4: {theta_4}\n"
-              f"theta2n: {theta_2_N}\n"
-              f"theta3n: {theta_3_N}\n"
-              f"theta4n: {theta_4_N}")"""
 
     return compare([theta_2, theta_3, theta_4], [theta_2_N, theta_3_N, theta_4_N], past_setpoint)
 
@@ -258,8 +238,6 @@ class Arm:
         :return:
         """
 
-        print(LeArmConstants.gripper_positions[gripper_setpoint])
-
         if command_type == LeArmConstants.CommandType.STEPPED.value:
             # Does not reflect real world feedrate and frequency.
             feedrate = 75  # mm/s
@@ -314,13 +292,10 @@ class Arm:
                 end = time.time()
                 elapsed_time = elapsed_time + (end - start)
 
-            print(f"Average Cycle Time : {elapsed_time / steps}")
-
             # Do this because the self.past_setpoint value is updated in the kinematics side because it's pbr
             self.past_setpoint = past_setpoint
 
             # Do gripper last
-            print(self.current_setpoint.theta6)
             self.set_setpoint_to_servo_raw(m.degrees(self.current_setpoint.theta6), LeArmConstants.PINS.GRIPPER.value)
         elif command_type == LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value:
             pass
@@ -337,9 +312,6 @@ class Arm:
 
             servo_outputs = self.current_setpoint.get_servo_setpoint_list()
             theta_list = self.current_setpoint.get_raw_theta_list_radians()
-            # print("Inverse Kinematics solved for: ")
-            # print(self.current_setpoint.get_raw_theta_list_radians())
-            # print(servo_outputs)
 
             # Doesn't include gripper updates
             self.update_servos_setpoints_raw(servo_outputs)
@@ -360,8 +332,6 @@ class ArmKinematics:
     # Careful to only use after the gripper vector has been removed from the arm setpoint
     def get_base_3_axis_z_length_with_gripper(self):
         [x, z] = self.get_coordinates_for_3_axis()
-        print(f"Old : {get_2D_vector_length(self.base_3_axis, self.current_setpoint.z)}")
-        print(f"New : {get_2D_vector_length(x, z)}")
         return get_2D_vector_length(x, z)
 
     def clamp_base_3_axis_z_vector(self):
@@ -372,7 +342,6 @@ class ArmKinematics:
         else:
             scaler = 1
 
-        print(f"scaler : {scaler}, length : {self.get_base_3_axis_z_length_with_gripper()}")
         self.base_3_axis = scaler * self.base_3_axis
         self.current_setpoint.z = scaler * self.current_setpoint.z
 
@@ -412,12 +381,6 @@ class ArmKinematics:
 
             x3, z3 = self.get_coordinates_for_3_axis()
 
-            # print(f"""
-            # base_3_axis : {x3}
-            # z (no gripper): {z3}
-            # pitch : {self.current_setpoint.pitch}
-            # command type: {command_type}""")
-
             if command_type == LeArmConstants.CommandType.FIXED.value:
                 if not is_valid_x_z_coordinate(x3, z3):
                     print("OUTSIDE REACHABLE RANGE")
@@ -436,11 +399,7 @@ class ArmKinematics:
 
                     self.update_base_3_axis()
                     x3, z3 = self.get_coordinates_for_3_axis()
-                    print(f"""
-                                base_3_axis : {x3}
-                                z : {z3}
-                                pitch : {self.current_setpoint.pitch}
-                                command type: {command_type}""")
+
                     if is_valid_x_z_coordinate(x3, z3):
                         self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
                                                                                       self.current_setpoint.pitch,
@@ -551,7 +510,6 @@ class ArmKinematics:
 
         gripper_v_x = m.cos(self.current_setpoint.pitch) * gripper_length
         gripper_v_z = m.sin(self.current_setpoint.pitch) * gripper_length
-        # print("Gripper Vector Length:" + gripper_length.__str__())
         return [self.base_3_axis - gripper_v_x, self.current_setpoint.z - gripper_v_z]
 
     def get_added_gripper_coordinates(self, point):
@@ -577,11 +535,6 @@ class ArmKinematics:
         Xs = LeArmConstants.X_SHIFT
         slope = 0
 
-        print(f"""
-        base_5_axis : {base_5_axis}
-        base_3_axis : {self.base_3_axis}
-        slope : {slope}""")
-
         if int(base_5_axis) != 0:
             slope = z_no_gripper / base_5_axis
 
@@ -597,17 +550,9 @@ class ArmKinematics:
             z1 = m.sqrt(square(radius) - square(Xs))
             z2 = -z1
 
-        print(f"""
-        x1 : {x1}
-        z1 : {z1}
-        x2 : {x2}
-        z2 : {z2}""")
-
         closest_point = compare_points([base_5_axis, z_no_gripper],
                                        [[x1, z1], [x2, z2]])
-        print(f"Closest point before gripper added : {closest_point}")
         closest_point = self.get_added_gripper_coordinates([-closest_point[0], closest_point[1]])
-        print(closest_point)
         self.update_xy(closest_point[0])
         self.current_setpoint.z = closest_point[1]
 
@@ -616,9 +561,6 @@ class ArmKinematics:
         theta = m.atan2(self.current_setpoint.y, self.current_setpoint.x)
         self.current_setpoint.y = value * m.sin(theta)
         self.current_setpoint.x = value * m.cos(theta)
-        print(f"""
-        new x : {self.current_setpoint.x}
-        new y : {self.current_setpoint.y}""")
 
     def solve_adjustable_pitch(self):
         pitch = self.current_setpoint.pitch
@@ -628,7 +570,6 @@ class ArmKinematics:
         for i in range(180):
             self.current_setpoint.pitch = pitch + m.radians(i)
             [x, z] = self.get_coordinates_for_3_axis()
-            # print(f"pitch : {self.current_setpoint.pitch}\nx : {x}\nz : {z}")
             if is_valid_x_z_coordinate(x, z) and check_servo_setpoint_list_achievable(solve_3_axis_planar(x, z,
                                                                                                           self.current_setpoint.pitch,
                                                                                                           self.past_setpoint.get_3_axis_list())):
@@ -637,7 +578,6 @@ class ArmKinematics:
 
             self.current_setpoint.pitch = pitch - m.radians(i)
             [x, z] = self.get_coordinates_for_3_axis()
-            # print(f"pitch : {self.current_setpoint.pitch}\nx : {x}\nz : {z}")
             if is_valid_x_z_coordinate(x, z) and check_servo_setpoint_list_achievable(solve_3_axis_planar(x, z,
                                                                                                           self.current_setpoint.pitch,
                                                                                                           self.past_setpoint.get_3_axis_list())):
@@ -647,4 +587,3 @@ class ArmKinematics:
             self.current_setpoint.pitch = pitch
 
         self.current_setpoint.pitch = scale_to_range_from_0(self.current_setpoint.pitch, 2 * m.pi)
-        print(f"FINAL : pitch : {self.current_setpoint.pitch}\nx : {x}\nz : {z}")
