@@ -585,5 +585,6 @@ class ArmKinematics:
         if not new_pitch:
             self.current_setpoint.pitch = pitch
             print("No new pitch found: Point Unreachable")
-
-        self.current_setpoint.pitch = scale_to_range_from_0(self.current_setpoint.pitch, 2 * m.pi)
+        else:
+            self.current_setpoint.pitch = scale_to_range_from_0(self.current_setpoint.pitch, 2 * m.pi)
+            print(f"New Point: {self.current_setpoint.get_setpoint_as_list()}")
