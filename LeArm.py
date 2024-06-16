@@ -446,7 +446,6 @@ class ArmKinematics:
                         print("NO SOLUTION")
                         self.move_past_to_current_setpoint()
 
-                    # See if this works
                     self.solve_adjustable_pitch()
 
                     self.update_base_3_axis()
@@ -585,5 +584,6 @@ class ArmKinematics:
                 break
         if not new_pitch:
             self.current_setpoint.pitch = pitch
+            print("No new pitch found: Point Unreachable")
 
         self.current_setpoint.pitch = scale_to_range_from_0(self.current_setpoint.pitch, 2 * m.pi)
