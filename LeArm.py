@@ -489,9 +489,9 @@ class ArmKinematics:
     def check_update_current_setpoint_angles(self, planar_3_axis_solution):
         if planar_3_axis_solution[0] is not None:
             self.current_setpoint.theta2 = planar_3_axis_solution[0]
-        elif planar_3_axis_solution[1] is not None:
+        if planar_3_axis_solution[1] is not None:
             self.current_setpoint.theta3 = planar_3_axis_solution[1]
-        elif planar_3_axis_solution[2] is not None:
+        if planar_3_axis_solution[2] is not None:
             self.current_setpoint.theta4 = planar_3_axis_solution[2]
         else:
             self.move_past_to_current_setpoint()
