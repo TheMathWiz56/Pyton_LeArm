@@ -464,11 +464,7 @@ class ArmKinematics:
 
                     self.update_base_3_axis()
                     x3, z3 = self.get_coordinates_for_3_axis()
-                    print(f"""
-                                base_3_axis : {x3}
-                                z : {z3}
-                                pitch : {self.current_setpoint.pitch}
-                                command type: {command_type}""")
+
                     if is_valid_x_z_coordinate(x3, z3):
                         self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
                                                                                       self.current_setpoint.pitch,
@@ -496,11 +492,7 @@ class ArmKinematics:
 
                     self.update_base_3_axis()
                     x3, z3 = self.get_coordinates_for_3_axis()
-                    print(f"""
-                                base_3_axis : {x3}
-                                z : {z3}
-                                pitch : {self.current_setpoint.pitch}
-                                command type: {command_type}""")
+
                     if is_valid_x_z_coordinate(x3, z3):
                         self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
                                                                                       self.current_setpoint.pitch,
