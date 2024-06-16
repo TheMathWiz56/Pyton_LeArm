@@ -53,7 +53,7 @@ class Command:
         self.le_arm.go_to(gripper_state, mode, x, y, z, m.radians(pitch), m.radians(roll))
 
     def cube_stack(self):
-        self.le_arm.go_to(LeArmConstants.gripper_positions[2], LeArmConstants.CommandType.TRAVEL_AT_HEIGHT, 250,
+        self.le_arm.go_to(2, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT, 250,
                           0, -75, m.radians(230), 0)
-        self.le_arm.go_to(LeArmConstants.gripper_positions[1], LeArmConstants.CommandType.TRAVEL_AT_HEIGHT, 180,
+        self.le_arm.go_to(1, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT, 180,
                           150, -50, m.radians(230), 0)
