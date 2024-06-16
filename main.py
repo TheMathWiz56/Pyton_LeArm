@@ -48,6 +48,7 @@ def main():
             print("2) Go To Vertical 0")
             print("3) Go To Stow")
             print("4) Go To Custom Point")
+            print("5) Cube Stack")
             user_input = input("Select Command: ")
 
             try:
@@ -60,6 +61,8 @@ def main():
                     command_controller.go_to_stow()
                 elif user_input_int == 4:
                     command_controller.go_to()
+                elif user_input_int == 5:
+                    command_controller.cube_stack()
                 else:
                     print("Invalid Input: Not a Command")
             except ValueError:

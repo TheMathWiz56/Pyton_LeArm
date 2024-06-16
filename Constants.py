@@ -61,7 +61,7 @@ class LeArmConstants:
     All Constants for LeArm robotic arm project
     """
 
-    gripper_positions = [0, 45, 80]
+    gripper_positions = [0, 45, 105]
 
     # Enumerator for keeping track of Link Types
     class LinkType(Enum):
