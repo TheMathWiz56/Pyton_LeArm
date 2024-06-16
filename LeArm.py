@@ -489,15 +489,9 @@ class ArmKinematics:
     def check_update_current_setpoint_angles(self, planar_3_axis_solution):
         if planar_3_axis_solution[0] is not None:
             self.current_setpoint.theta2 = planar_3_axis_solution[0]
-        else:
-            self.move_past_to_current_setpoint()
-            print("POINT NOT REACHABLE")
-        if planar_3_axis_solution[1] is not None:
+        elif planar_3_axis_solution[1] is not None:
             self.current_setpoint.theta3 = planar_3_axis_solution[1]
-        else:
-            self.move_past_to_current_setpoint()
-            print("POINT NOT REACHABLE")
-        if planar_3_axis_solution[2] is not None:
+        elif planar_3_axis_solution[2] is not None:
             self.current_setpoint.theta4 = planar_3_axis_solution[2]
         else:
             self.move_past_to_current_setpoint()
@@ -588,3 +582,4 @@ class ArmKinematics:
         else:
             self.current_setpoint.pitch = scale_to_range_from_0(self.current_setpoint.pitch, 2 * m.pi)
             print(f"New Point: {self.current_setpoint.get_setpoint_as_list()}")
+            print()
