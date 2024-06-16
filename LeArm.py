@@ -491,6 +491,9 @@ class ArmKinematics:
                         print("NO SOLUTION")
                         self.move_past_to_current_setpoint()
 
+                    # See if this works
+                    self.solve_adjustable_pitch()
+
                     self.update_base_3_axis()
                     x3, z3 = self.get_coordinates_for_3_axis()
                     print(f"""
