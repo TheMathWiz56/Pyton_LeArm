@@ -564,9 +564,9 @@ class ArmKinematics:
         self.update_xy(closest_point[0])
         self.current_setpoint.z = closest_point[1]
 
-        print(f"New x : {self.current_setpoint.x}")
-        print(f"New y : {self.current_setpoint.y}")
-        print(f"New z : {self.current_setpoint.z}")
+        # print(f"New x : {self.current_setpoint.x}")
+        # print(f"New y : {self.current_setpoint.y}")
+        # print(f"New z : {self.current_setpoint.z}")
 
     def update_xy(self, value):
         value = m.fabs(value)
