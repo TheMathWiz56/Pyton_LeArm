@@ -40,6 +40,14 @@ def clamp(n, minn, maxn):
     return n
 
 
+def clamp_continuous_radians(n):
+    if n > m.pi:
+        n = n - 2 * m.pi
+    elif n < -m.pi:
+        n = n + 2 * m.pi
+    return n
+
+
 def scale_to_range_from_0(n, maxn):
     return n % maxn
 

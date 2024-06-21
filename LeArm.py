@@ -137,6 +137,9 @@ Need to add shift for elbow1 being off center
     theta_4 = pitch - theta_2 - theta_3
     theta_4_N = pitch - theta_2_N - theta_3_N
 
+    [theta_2, theta_3, theta_4] = clamp_solution([theta_2, theta_3, theta_4])
+    [theta_2_N, theta_3_N, theta_4_N] = clamp_solution([theta_2_N, theta_3_N, theta_4_N])
+
     print(f"""
 x : {x}
 z : {z}
@@ -144,6 +147,8 @@ pitch : {pitch}
 theta2 : {theta_3}
 beta : {beta}
 psi : {psi}
+sol1 : {[theta_2, theta_3, theta_4]}
+sol2 : {[theta_2_N, theta_3_N, theta_4_N]}
 """)
 
     return compare([theta_2, theta_3, theta_4], [theta_2_N, theta_3_N, theta_4_N], past_setpoint)
@@ -183,6 +188,14 @@ def get_distance_between_points(point1, point2):
         distance += distance + square(point1[i] - point2[i])
     return distance
 
+
+def clamp_solution(sol):
+    i = 0
+    for value in sol:
+        sol[i] = clamp_continuous_radians(value)
+        i = i + 1
+
+    return sol
 
 # ____________________________________________________________________________________________________________________
 
