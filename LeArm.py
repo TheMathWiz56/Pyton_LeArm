@@ -454,9 +454,7 @@ class ArmKinematics:
                     x3, z3 = self.get_coordinates_for_3_axis()
 
                     print(f"Current Setpoint: {self.current_setpoint.get_setpoint_as_list()}")
-                    print(f"Solution Found: {solve_3_axis_planar(x3, z3,
-                                                                        self.current_setpoint.pitch,
-                                                                        self.past_setpoint.get_3_axis_list())}")
+                    print(f"Solution Found: {solve_3_axis_planar(x3, z3, self.current_setpoint.pitch, self.past_setpoint.get_3_axis_list())}")
 
                     if is_valid_x_z_coordinate(x3, z3):
                         self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
