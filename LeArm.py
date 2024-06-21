@@ -88,11 +88,11 @@ def compare(sol1, sol2, past_setpoint):
         return sol1
     elif sol2_achievable:
         return sol2
-
-    # Catch all for now
-    print(sol1)
-    print(sol2)
-    return [None, None, None]
+    else:
+        # Catch all for now
+        print(sol1)
+        print(sol2)
+        return [None, None, None]
 
 
 def solve_for_base(x, y):

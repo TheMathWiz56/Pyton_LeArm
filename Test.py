@@ -1,10 +1,9 @@
-import math as m
+a = True
+b = False
 
-
-def scale_to_range_from_0(n, maxn):
-    remainder = n % maxn
-    return n % maxn
-
-
-print(scale_to_range_from_0(7 * m.pi, 2 * m.pi))
-
+if a and not b:
+    print("a and b")
+elif a:
+    print("a")
+elif b:
+    print("b")
