@@ -240,7 +240,7 @@ class Arm:
 
         if command_type == LeArmConstants.CommandType.STEPPED.value:
             # Does not reflect real world feedrate and frequency.
-            feedrate = 35  # mm/s
+            feedrate = 35   # mm/s
             frequency = 50
 
             dx = x - self.current_setpoint.x
