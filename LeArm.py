@@ -451,7 +451,7 @@ class ArmKinematics:
 
                     # Should go before adjustable pitch solve
                     # self.update_base_3_axis()
-                    x3, z3 = self.get_coordinates_for_3_axis()
+                    [x3, z3] = self.get_coordinates_for_3_axis()
 
                     if is_valid_x_z_coordinate(x3, z3):
                         self.check_update_current_setpoint_angles(solve_3_axis_planar(x3, z3,
