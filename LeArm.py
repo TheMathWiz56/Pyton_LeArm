@@ -137,6 +137,15 @@ Need to add shift for elbow1 being off center
     theta_4 = pitch - theta_2 - theta_3
     theta_4_N = pitch - theta_2_N - theta_3_N
 
+    print(f"""
+x : {x}
+z : {z}
+pitch : {pitch}
+theta2 : {theta_3}
+beta : {beta}
+psi : {psi}
+""")
+
     return compare([theta_2, theta_3, theta_4], [theta_2_N, theta_3_N, theta_4_N], past_setpoint)
 
 
