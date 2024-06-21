@@ -77,6 +77,9 @@ def compare(sol1, sol2, past_setpoint):
     sol1_achievable = check_servo_setpoint_list_achievable(sol1)
     sol2_achievable = check_servo_setpoint_list_achievable(sol2)
 
+    print(sol1)
+    print(sol2)
+
     if sol1_achievable and sol2_achievable:
         travel1 = get_travel(sol1, past_setpoint)
         travel2 = get_travel(sol2, past_setpoint)
@@ -90,8 +93,7 @@ def compare(sol1, sol2, past_setpoint):
         return sol2
 
     # Catch all for now
-    print(sol1)
-    print(sol2)
+
     return [None, None, None]
 
 
