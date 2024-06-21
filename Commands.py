@@ -60,6 +60,6 @@ class Command:
         self.le_arm.go_to(1, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value, 180,
                           150, -50, m.radians(230), 0)
         self.le_arm.go_to(2, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value, 0,
-                          300, -60, m.radians(230), 0)
+                          300, -65, m.radians(230), 0)
         self.le_arm.go_to(1, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value, 180,
-                          150, -20, m.radians(230), 0)
+                          150, -15, m.radians(230), 0)
