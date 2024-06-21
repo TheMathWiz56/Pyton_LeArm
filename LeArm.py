@@ -90,6 +90,8 @@ def compare(sol1, sol2, past_setpoint):
         return sol2
 
     # Catch all for now
+    print(sol1)
+    print(sol2)
     return [None, None, None]
 
 
