@@ -65,10 +65,13 @@ class Command:
         self.le_arm.go_to(1, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value, 180,
                           150, -15, m.radians(230), 0)
 
+        # Setup Move
         self.le_arm.go_to(1, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value, 209,
-                          -209, -30, m.radians(180), 0)
+                          -209, LeArmConstants.CRUISING_HEIGHT, m.radians(180), 0)
         self.le_arm.go_to(2, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value, -209,
                           209, -30, m.radians(0), 180)
-
-        """self.le_arm.go_to(1, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value, 180,
-                          150, 20, m.radians(230), 0)"""
+        # Setup Move
+        self.le_arm.go_to(2, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value, -180,
+                          -150, LeArmConstants.CRUISING_HEIGHT, m.radians(0), 180)
+        self.le_arm.go_to(1, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value, 180,
+                          150, 20, m.radians(230), 0)
