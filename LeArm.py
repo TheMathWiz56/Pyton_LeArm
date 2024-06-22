@@ -316,7 +316,7 @@ class Arm:
             print(f"current roll: {self.current_setpoint.roll}")
             print(f"desired roll: {roll}")
             steps = 3
-            if not self.current_setpoint.pitch  > m.pi:
+            if not self.current_setpoint.pitch > (m.pi * 3 / 2):
                 dp = (pitch - self.current_setpoint.pitch) / steps
             else:
                 dp = (pitch - (self.current_setpoint.pitch - 2 * m.pi)) / steps
@@ -333,7 +333,8 @@ class Arm:
                        LeArmConstants.CommandType.STEPPED.value, x, y,
                        LeArmConstants.CRUISING_HEIGHT, (pitch - dp), self.current_setpoint.roll + dr)
             print(f"3 : input {pitch, self.current_setpoint.roll + dr}")
-            self.go_to(gripper_setpoint, LeArmConstants.CommandType.STEPPED.value, x, y, z, pitch, self.current_setpoint.roll + dr)
+            self.go_to(gripper_setpoint, LeArmConstants.CommandType.STEPPED.value, x, y, z, pitch,
+                       self.current_setpoint.roll + dr)
         else:
             self.kinematics.solve(x, y, z, pitch, roll, LeArmConstants.gripper_positions[gripper_setpoint],
                                   command_type)
