@@ -311,7 +311,7 @@ class Arm:
             # Do gripper last
             self.set_setpoint_to_servo_raw(m.degrees(self.current_setpoint.theta6), LeArmConstants.PINS.GRIPPER.value)
         elif command_type == LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value:
-            pass
+
             self.go_to(get_gripper_state_from_angle_rad(self.current_setpoint.theta6),
                        LeArmConstants.CommandType.STEPPED.value, self.current_setpoint.x, self.current_setpoint.y,
                        LeArmConstants.CRUISING_HEIGHT, pitch, roll)
