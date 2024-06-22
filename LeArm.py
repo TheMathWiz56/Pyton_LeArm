@@ -316,7 +316,10 @@ class Arm:
             print(f"current roll: {self.current_setpoint.roll}")
             print(f"desired roll: {roll}")
             steps = 3
-            dp = (pitch - self.current_setpoint.pitch) / steps
+            if not self.current_setpoint.pitch  > m.pi:
+                dp = (pitch - self.current_setpoint.pitch) / steps
+            else:
+                dp = (pitch - (self.current_setpoint.pitch - 2 * m.pi)) / steps
             dr = (roll - self.current_setpoint.roll) / steps
             print(f"dp: {dp}")
             print(f"dr: {dr}")
