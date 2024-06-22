@@ -70,7 +70,7 @@ class Command:
                           -209, LeArmConstants.CRUISING_HEIGHT, m.radians(180), m.radians(180))"""
 
         self.le_arm.go_to(2, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value, -209,
-                          209, -60, m.radians(-50), m.radians(180))
+                          209, -60, m.radians(50), m.radians(180))
         # Setup Move
         self.le_arm.go_to(2, LeArmConstants.CommandType.TRAVEL_AT_HEIGHT.value, -180,
                           -150, LeArmConstants.CRUISING_HEIGHT, 0, 0)
