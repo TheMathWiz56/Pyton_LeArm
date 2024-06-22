@@ -321,16 +321,16 @@ class Arm:
             print(f"dp: {dp}")
             print(f"dr: {dr}")
 
-            print(f"1 : input {self.current_setpoint.pitch + dp, self.current_setpoint.roll + dr}")
+            print(f"1 : input {(pitch - 2 * dp), self.current_setpoint.roll + dr}")
             self.go_to(get_gripper_state_from_angle_rad(self.current_setpoint.theta6),
                        LeArmConstants.CommandType.STEPPED.value, self.current_setpoint.x, self.current_setpoint.y,
-                       LeArmConstants.CRUISING_HEIGHT, self.current_setpoint.pitch + dp, self.current_setpoint.roll + dr)
-            print(f"2 : input {self.current_setpoint.pitch + dp, self.current_setpoint.roll + dr}")
+                       LeArmConstants.CRUISING_HEIGHT, (pitch - 2 * dp), self.current_setpoint.roll + dr)
+            print(f"2 : input {(pitch - dp), self.current_setpoint.roll + dr}")
             self.go_to(get_gripper_state_from_angle_rad(self.current_setpoint.theta6),
                        LeArmConstants.CommandType.STEPPED.value, x, y,
-                       LeArmConstants.CRUISING_HEIGHT, self.current_setpoint.pitch + dp, self.current_setpoint.roll + dr)
-            print(f"3 : input {self.current_setpoint.pitch + dp, self.current_setpoint.roll + dr}")
-            self.go_to(gripper_setpoint, LeArmConstants.CommandType.STEPPED.value, x, y, z, self.current_setpoint.pitch + dp, self.current_setpoint.roll + dr)
+                       LeArmConstants.CRUISING_HEIGHT, (pitch - dp), self.current_setpoint.roll + dr)
+            print(f"3 : input {pitch, self.current_setpoint.roll + dr}")
+            self.go_to(gripper_setpoint, LeArmConstants.CommandType.STEPPED.value, x, y, z, pitch, self.current_setpoint.roll + dr)
         else:
             self.kinematics.solve(x, y, z, pitch, roll, LeArmConstants.gripper_positions[gripper_setpoint],
                                   command_type)
